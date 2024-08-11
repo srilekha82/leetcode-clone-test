@@ -8,4 +8,7 @@ export default {
     extend: {},
   },
   plugins: [],
+  prefix: 'tw-',
+  important: '#root',
+  preflight: false
 }
