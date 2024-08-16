@@ -4,7 +4,7 @@ import SignUpForm from './Form';
 
 export default function SignUp() {
   return (
-    <Layout>
+    <Layout className='tw-flex tw-justify-center tw-items-center'>
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <SignUpForm></SignUpForm>
       </Box>

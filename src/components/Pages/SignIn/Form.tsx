@@ -22,24 +22,26 @@ export default function LoginForm() {
     event.preventDefault();
   };
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'colum', gap: '10px' }}>
-      <FormControl variant='outlined'>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <FormControl variant='outlined' size='small'>
         <TextField
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           id='standard-basic'
           type='email'
-          label='email'
+          label='E-mail'
           variant='outlined'
+          size='small'
         />
       </FormControl>
-      <FormControl variant='outlined'>
+      <FormControl variant='outlined' size='small'>
         <InputLabel htmlFor='outlined-adornment-password'>Password</InputLabel>
         <OutlinedInput
           id='outlined-adornment-password'
           type={showPassword ? 'text' : 'password'}
           onChange={(e) => setPassword(e.target.value)}
           value={password}
+          size='small'
           endAdornment={
             <InputAdornment position='end'>
               <IconButton
@@ -52,10 +54,10 @@ export default function LoginForm() {
               </IconButton>
             </InputAdornment>
           }
-          label='Password'
+          label='password'
         />
       </FormControl>
-      <Button variant='contained'>SignIn</Button>
+      <Button variant='contained'>Sign In</Button>
     </Box>
   );
 }
