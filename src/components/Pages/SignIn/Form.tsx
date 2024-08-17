@@ -11,7 +11,11 @@ import {
 } from '@mui/material';
 import { MdOutlineVisibility } from 'react-icons/md';
 import { MdOutlineVisibilityOff } from 'react-icons/md';
+import { useMutation } from '@tanstack/react-query';
+import signIn from '../../../services/signIn';
+import {useCookies} from 'react-cookie'
 export default function LoginForm() {
+  const [cookies] = useCookies();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -20,6 +24,17 @@ export default function LoginForm() {
 
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+  };
+  const { mutate } = useMutation({
+    mutationFn: signIn,
+    mutationKey: ['signIn'],
+    onSuccess(data, _) {
+      console.log(data);
+      console.log(cookies)
+    },
+  });
+  const onClickHandler = () => {
+    mutate({ email, password });
   };
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -57,7 +72,9 @@ export default function LoginForm() {
           label='password'
         />
       </FormControl>
-      <Button variant='contained'>Sign In</Button>
+      <Button variant='contained' onClick={onClickHandler}>
+        Sign In
+      </Button>
     </Box>
   );
 }

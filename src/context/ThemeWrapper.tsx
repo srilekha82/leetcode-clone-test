@@ -17,11 +17,11 @@ const ThemeWrapper: FC<contextWrapperProps> = ({ children }) => {
     palette: {
       mode,
     },
-    typography:{
-      button:{
-        textTransform:'none'
-      }
-    }
+    typography: {
+      button: {
+        textTransform: 'none',
+      },
+    },
   });
   const themeWrapperUtils = useMemo(
     () => ({

@@ -26,7 +26,7 @@ export default function SignUpForm() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-       <FormControl variant='outlined' size='small'>
+      <FormControl variant='outlined' size='small'>
         <TextField
           value={username}
           onChange={(e) => setUserName(e.target.value)}

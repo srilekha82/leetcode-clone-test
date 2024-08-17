@@ -1,8 +1,8 @@
 import api from '../API/Index';
 import { commonresponse } from '../utils/types';
-const signIn = async (email: string, password: string) => {
+const signIn = async (userInfo: { email: string; password: string }) => {
   try {
-    const response = await api.post<commonresponse>('/auth/login', { email, password });
+    const response = await api.post<commonresponse>('/auth/login', { ...userInfo },{withCredentials:true});
     if (response.data.status === 'Failure') {
       throw new Error(response.data.error);
     }
