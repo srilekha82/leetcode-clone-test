@@ -1,8 +1,8 @@
 import api from '../API/Index';
-import { commonresponse } from '../utils/types';
-const signIn = async (userInfo: { email: string; password: string }) => {
+import { getProblemType } from '../utils/types';
+const getProblem = async (id: string) => {
   try {
-    const response = await api.post<commonresponse>('/auth/login', { ...userInfo }, { withCredentials: true });
+    const response = await api.get<getProblemType>(`/problems/${id}`);
     if (response.data.status === 'Failure') {
       throw new Error(response.data.error);
     }
@@ -14,4 +14,4 @@ const signIn = async (userInfo: { email: string; password: string }) => {
   }
 };
 
-export default signIn;
+export default getProblem;

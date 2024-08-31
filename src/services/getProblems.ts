@@ -1,8 +1,8 @@
 import api from '../API/Index';
-import { commonresponse } from '../utils/types';
+import { getProblemsType } from '../utils/types';
 const getProblems = async () => {
   try {
-    const response = await api.get<commonresponse>('/problems');
+    const response = await api.get<getProblemsType>('/problems');
     if (response.data.status === 'Failure') {
       throw new Error(response.data.error);
     }

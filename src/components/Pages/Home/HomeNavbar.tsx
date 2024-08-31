@@ -20,13 +20,14 @@ export default function HomeNavbar() {
       </div>
       <ul className='tw-list-none tw-flex tw-justify-between tw-p-4 w-items-center tw-w-60'>
         <li>
-          <Link to='/problems'>Explore</Link>
-        </li>
-        <li>
           <Link to='/signin'>SignIn</Link>
         </li>
         <li>
-          <Button onClick={toggleColorMode} variant='text'>
+          <Button
+            className={colorMode === 'dark' ? 'tw-border-white' : ''}
+            variant='outlined'
+            onClick={toggleColorMode}
+          >
             {colorMode === 'dark' ? <CiLight /> : <MdOutlineDarkMode />}
           </Button>
         </li>

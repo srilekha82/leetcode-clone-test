@@ -16,6 +16,19 @@ const ThemeWrapper: FC<contextWrapperProps> = ({ children }) => {
   const darkTheme = createTheme({
     palette: {
       mode,
+      primary: {
+        light: '#2D3748',
+        dark: '#E2E8F0',
+        main: '#2D3748',
+      },
+      secondary: {
+        light: '#4A5568',
+        dark: '#A0AEC0',
+        main: '#4A5568',
+      },
+      background: {
+        default: mode === 'light' ? '#ECECEC' : '#1f2125',
+      },
     },
     typography: {
       button: {

@@ -1,29 +1,62 @@
-// import { DataGrid } from '@mui/x-data-grid';
-import { useQuery } from "@tanstack/react-query";
-import getProblems from "../../../services/getProblems";
+import { useQuery } from '@tanstack/react-query';
+import getProblems from '../../../services/getProblems';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useState } from "react";
+import { useMemo, useState } from 'react';
+import { Problem } from '../../../utils/types';
+import { createColumnHelper } from '@tanstack/react-table';
+import ProblemsTable from './ProblemsTable';
+import { Link } from 'react-router-dom';
+
 export default function ProblemsSet() {
   const [open, setOpen] = useState<boolean>(true);
   const handleClose = () => {
     setOpen(false);
   };
-
-  const {data,isLoading,isError,error}=useQuery({
-    queryKey:['problems'],
-    queryFn:getProblems
-  })
-
+  const columnHelper = createColumnHelper<Problem>();
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['problems'],
+    queryFn: getProblems,
+  });
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor((row) => row.status, {
+        id: 'Status',
+        cell: (info) => {
+          return <div> {info.getValue()}</div>;
+        },
+      }),
+      columnHelper.accessor((row) => row.title, {
+        id: 'Title',
+        cell: (info) => {
+          return (
+            <Link to={`/problems/${info.row.original._id}${info.row.index + 1}`}>
+              {info.row.index + 1}. {info.getValue()}
+            </Link>
+          );
+        },
+      }),
+      columnHelper.accessor((row) => row.difficulty, {
+        id: 'Difficulty',
+        cell: (info) => {
+          return <div>{info.getValue()}</div>;
+        },
+      }),
+    ],
+    []
+  );
   if (isLoading) {
-    return <>
-    <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={open}
-        onClick={handleClose}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop></>
+    return (
+      <>
+        <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={open} onClick={handleClose}>
+          <CircularProgress color='inherit' />
+        </Backdrop>
+      </>
+    );
   }
-  return <div>Problems</div>;
+
+  if (isError) {
+    return <p>{error.message}</p>;
+  }
+  return <ProblemsTable columns={columns as []} data={data?.data as Problem[]} />;
 }

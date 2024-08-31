@@ -9,7 +9,7 @@ export default function Navbar() {
   const { colorMode, toggleColorMode } = usethemeUtils();
   return (
     <nav>
-      <ul className='tw-container-md tw-mx-auto tw-flex tw-justify-evenly tw-items-center tw-py-1 tw-list-none'>
+      <ul className='tw-container-md tw-mx-auto tw-flex tw-justify-evenly tw-items-center tw-py-2 tw-list-none'>
         <li className='tw-p-1'>
           <Link to='/' component={ReactLink} underline='hover'>
             <img
@@ -22,13 +22,12 @@ export default function Navbar() {
         </li>
         <ul className='tw-list-none tw-flex tw-items-center'>
           <li className='tw-p-1'>
-            <Link component={ReactLink} to='/problems' underline='hover'>
-              Explore
-            </Link>
-          </li>
-          <li className='tw-p-1'>
-            <Button variant='text' onClick={toggleColorMode}>
-              {colorMode === 'dark' ? <CiLight fontSize={18} /> : <MdOutlineDarkMode fontSize={18} />}
+            <Button
+              className={colorMode === 'dark' ? 'tw-border-white' : ''}
+              variant='outlined'
+              onClick={toggleColorMode}
+            >
+              {colorMode === 'dark' ? <CiLight color='white' fontSize={18} /> : <MdOutlineDarkMode fontSize={18} />}
             </Button>
           </li>
         </ul>

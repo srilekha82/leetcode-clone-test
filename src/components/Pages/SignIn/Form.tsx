@@ -13,7 +13,7 @@ import { MdOutlineVisibility } from 'react-icons/md';
 import { MdOutlineVisibilityOff } from 'react-icons/md';
 import { useMutation } from '@tanstack/react-query';
 import signIn from '../../../services/signIn';
-import {useCookies} from 'react-cookie'
+import { useCookies } from 'react-cookie';
 export default function LoginForm() {
   const [cookies] = useCookies();
   const [email, setEmail] = useState<string>('');
@@ -30,7 +30,7 @@ export default function LoginForm() {
     mutationKey: ['signIn'],
     onSuccess(data, _) {
       console.log(data);
-      console.log(cookies)
+      console.log(cookies);
     },
   });
   const onClickHandler = () => {
