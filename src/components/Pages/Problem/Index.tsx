@@ -3,11 +3,12 @@ import Editor from '@monaco-editor/react';
 import * as monaco from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
 import getProblem from '../../../services/getProblem';
-import { Alert, Backdrop, Box, Chip, CircularProgress, Stack, Typography } from '@mui/material';
+import { Alert, Backdrop, Box, Button, Chip, CircularProgress, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import Layout from '../../UI/Layout';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
 import LanguageDropDown from './LanguageDropDown';
+import { supportedLanguages } from '../../../constants/Index';
 export default function Problem() {
   const { problemname } = useParams();
   const [open, setOpen] = useState<boolean>(true);
@@ -998,7 +999,7 @@ export default function Problem() {
           className={`tw-flex-1 tw-w-45 tw-p-2 tw-border-2 tw-border-[${colorMode === 'light' ? '#BEE3F8' : '#319795'}] tw-rounded-lg !tw-bg-${colorMode === 'light' ? 'white' : 'black'}`}
           style={{ backgroundColor: colorMode === 'light' ? 'white' : '#24292e' }}
         >
-          <Stack spacing={4} className='tw-p-2'>
+          <Stack spacing={8} className='tw-p-2'>
             <Box>
               <Typography variant='h5'>
                 {problemname?.slice(problemname.length - 1)}. {data?.data.title}
@@ -1037,10 +1038,26 @@ export default function Problem() {
           </div>
           <Editor
             theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
-            height='90vh'
-            defaultLanguage='javascript'
-            defaultValue='// some comment'
+            height='75dvh'
+            language={supportedLanguages[langauge].toLowerCase()}
+            value={data?.data.starterCode.find((s) => s.lang_id == langauge)?.code}
+            className='tw-max-h-[75dvh] tw-overflow-x-auto'
           />
+          <div className='tw-flex tw-justify-between tw-items-center'>
+            <div>Saved</div>
+            <div className='tw-flex tw-gap-2'>
+              <Button
+                variant='outlined'
+                color='primary'
+                className={`${colorMode === 'light' ? 'tw-bg-[#ECECEC]' : 'tw-bg-[#24292e] tw-text-white'}`}
+              >
+                Run
+              </Button>
+              <Button variant='contained' color='success'>
+                Submit
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

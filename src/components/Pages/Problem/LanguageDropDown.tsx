@@ -17,8 +17,15 @@ export default function LanguageDropDown({
       onChange={(event) => handleChange(event.target.value as number)}
       size='small'
     >
-      {supportedLanguages.map((l) => {
-        return <MenuItem value={l.id}>{l.name}</MenuItem>;
+      {Object.keys(supportedLanguages).map((l, id) => {
+        return (
+          <MenuItem key={`${id}${l}`} value={l}>
+            {
+              //@ts-ignore
+              supportedLanguages[l]
+            }
+          </MenuItem>
+        );
       })}
     </Select>
   );

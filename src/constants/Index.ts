@@ -3,12 +3,12 @@ export const difficultyColors = {
   medium: 'warning',
   hard: 'error',
 };
-export const supportedLanguages = [
-  { id: 50, name: 'C' },
-  { id: 54, name: 'C++' },
-  { id: 51, name: 'C#' },
-  { id: 95, name: 'Go' },
-  { id: 91, name: 'Java' },
-  { id: 93, name: 'JavaScript' },
-  { id: 92, name: 'Python' },
-];
+export const supportedLanguages: Record<number, string> = {
+  50: 'C',
+  54: 'C++',
+  51: 'C#',
+  95: 'Go',
+  91: 'Java',
+  93: 'JavaScript',
+  92: 'Python',
+};

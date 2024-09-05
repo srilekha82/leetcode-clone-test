@@ -17,6 +17,7 @@ export interface Problem {
   testCases: { input: string; output: string }[];
   status: string;
   _id: string;
+  starterCode: { lang_id: number; code: string }[];
 }
 export interface commonresponse {
   status: 'Sucess' | 'Failure';
