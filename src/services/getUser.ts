@@ -1,8 +1,8 @@
 import api from '../API/Index';
-import { signInType } from '../utils/types';
-const signIn = async (userInfo: { email: string; password: string }) => {
+import { getUserType } from '../utils/types';
+const getUser = async (id: string) => {
   try {
-    const response = await api.post<signInType>('/auth/login', { ...userInfo }, { withCredentials: true });
+    const response = await api.get<getUserType>(`/users/${id}`, { withCredentials: true });
     if (response.data.status === 'Failure') {
       throw new Error(response.data.error);
     }
@@ -14,4 +14,4 @@ const signIn = async (userInfo: { email: string; password: string }) => {
   }
 };
 
-export default signIn;
+export default getUser;

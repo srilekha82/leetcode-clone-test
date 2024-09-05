@@ -1,4 +1,4 @@
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import Editor from '@monaco-editor/react';
 import * as monaco from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
@@ -9,11 +9,14 @@ import Layout from '../../UI/Layout';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
 import LanguageDropDown from './LanguageDropDown';
 import { supportedLanguages } from '../../../constants/Index';
+import { useAuthSlice } from '../../../store/authslice/auth';
 export default function Problem() {
   const { problemname } = useParams();
   const [open, setOpen] = useState<boolean>(true);
   const [langauge, setLangauge] = useState<number>(93);
   const { colorMode } = usethemeUtils();
+  const isLogedIn = useAuthSlice((state) => state.isLogedIn);
+  const navigate = useNavigate();
 
   const handleClose = () => {
     setOpen(false);
@@ -992,6 +995,18 @@ export default function Problem() {
     );
   }
 
+  const onClickHandler = () => {
+    if (!isLogedIn) {
+      navigate('/signin');
+    }
+  };
+
+  const onSubmitHandler = () => {
+    if (!isLogedIn) {
+      navigate('/signin');
+    }
+  };
+
   return (
     <Layout showFooter={false}>
       <div className='tw-flex tw-gap-2 '>
@@ -1050,10 +1065,11 @@ export default function Problem() {
                 variant='outlined'
                 color='primary'
                 className={`${colorMode === 'light' ? 'tw-bg-[#ECECEC]' : 'tw-bg-[#24292e] tw-text-white'}`}
+                onClick={onClickHandler}
               >
                 Run
               </Button>
-              <Button variant='contained' color='success'>
+              <Button variant='contained' color='success' onClick={onSubmitHandler}>
                 Submit
               </Button>
             </div>

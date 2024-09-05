@@ -20,7 +20,7 @@ export interface Problem {
   starterCode: { lang_id: number; code: string }[];
 }
 export interface commonresponse {
-  status: 'Sucess' | 'Failure';
+  status: 'Success' | 'Failure';
   error?: string;
   data: any;
 }
@@ -29,4 +29,18 @@ export interface getProblemsType extends Omit<commonresponse, 'data'> {
 }
 export interface getProblemType extends Omit<commonresponse, 'data'> {
   data: Problem;
+}
+export interface User {
+  name: string;
+  email: string;
+  solvedProblems: string[];
+  favoriteProgrammingLanguage: string;
+  submissions: string[];
+  roles: string[];
+}
+export interface getUserType extends Omit<commonresponse, 'data'> {
+  data: User;
+}
+export interface signInType extends Omit<commonresponse, 'data'> {
+  data: { id: string; access_token: string };
 }

@@ -2,14 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import getProblems from '../../../services/getProblems';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useMemo, useState } from 'react';
-import { Problem } from '../../../utils/types';
+import { useEffect, useMemo, useState } from 'react';
+import { Problem, User } from '../../../utils/types';
 import { createColumnHelper } from '@tanstack/react-table';
 import ProblemsTable from './ProblemsTable';
 import { Link } from 'react-router-dom';
+import { useUserSlice } from '../../../store/user';
 
-export default function ProblemsSet() {
+export default function ProblemsSet({ user }: { user: User | null }) {
   const [open, setOpen] = useState<boolean>(true);
+  const setUser = useUserSlice((state) => state.setUser);
   const handleClose = () => {
     setOpen(false);
   };
@@ -18,6 +20,12 @@ export default function ProblemsSet() {
     queryKey: ['problems'],
     queryFn: getProblems,
   });
+  useEffect(() => {
+    if (user) {
+      setUser(user);
+    }
+  }, [user]);
+
   const columns = useMemo(
     () => [
       columnHelper.accessor((row) => row.status, {

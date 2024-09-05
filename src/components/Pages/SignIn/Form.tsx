@@ -13,15 +13,15 @@ import { MdOutlineVisibility } from 'react-icons/md';
 import { MdOutlineVisibilityOff } from 'react-icons/md';
 import { useMutation } from '@tanstack/react-query';
 import signIn from '../../../services/signIn';
-import { useCookies } from 'react-cookie';
+// import { useCookies } from 'react-cookie';
+import { useNavigate } from 'react-router';
 export default function LoginForm() {
-  const [cookies] = useCookies();
+  // const [cookies] = useCookies();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
-
   const handleClickShowPassword = () => setShowPassword((show) => !show);
-
+  const navigate = useNavigate();
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
@@ -29,8 +29,9 @@ export default function LoginForm() {
     mutationFn: signIn,
     mutationKey: ['signIn'],
     onSuccess(data, _) {
-      console.log(data);
-      console.log(cookies);
+      if (data?.status === 'Success') {
+        navigate('/', { state: data.data });
+      }
     },
   });
   const onClickHandler = () => {
