@@ -1,7 +1,7 @@
 export const difficultyColors = {
-  easy: 'info',
-  medium: 'warning',
-  hard: 'error',
+  easy: '#00af9b',
+  medium: '#ffb800',
+  hard: '#ff2d55',
 };
 export const supportedLanguages: Record<number, string> = {
   50: 'C',

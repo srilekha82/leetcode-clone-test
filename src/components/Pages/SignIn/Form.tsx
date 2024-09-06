@@ -75,7 +75,7 @@ export default function LoginForm() {
           label='password'
         />
       </FormControl>
-      <Button variant='contained' onClick={onClickHandler}>
+      <Button color='warning' variant='contained' onClick={onClickHandler}>
         Sign In
       </Button>
     </Box>

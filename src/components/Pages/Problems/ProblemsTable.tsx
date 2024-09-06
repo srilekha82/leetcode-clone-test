@@ -5,7 +5,6 @@ import {
   getPaginationRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -16,6 +15,9 @@ import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import { Problem } from '../../../utils/types';
 import TablePaginationActions from './ProblemTableActions';
+import { styled } from '@mui/material/styles';
+import { usethemeUtils } from '../../../context/ThemeWrapper';
+import { Container } from '@mui/material';
 
 function ProblemsTable({ data, columns }: { data: Problem[]; columns: [] }) {
   const table = useReactTable({
@@ -25,13 +27,23 @@ function ProblemsTable({ data, columns }: { data: Problem[]; columns: [] }) {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
+  const { colorMode } = usethemeUtils();
 
+  const StyledTableRow = styled(TableRow)(() => ({
+    '&:nth-of-type(odd)': {
+      backgroundColor: colorMode === 'dark' ? '#ffffff12' : '#f7f8fa',
+    },
+    // hide last border
+    '&:last-child td, &:last-child th': {
+      border: 0,
+    },
+  }));
   const { pageSize, pageIndex } = table.getState().pagination;
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Container maxWidth='lg' sx={{ maxHeight: '75dvh', overflowY: 'auto', scrollbarWidth: 'thin' }}>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+        <Table sx={{ minWidth: 650, maxHeight: '75dvh', overflowY: 'auto' }} aria-label='simple table'>
           <TableHead>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -50,13 +62,13 @@ function ProblemsTable({ data, columns }: { data: Problem[]; columns: [] }) {
           <TableBody>
             {table.getRowModel().rows.map((row) => {
               return (
-                <TableRow key={row.id}>
+                <StyledTableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => {
                     return (
                       <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                     );
                   })}
-                </TableRow>
+                </StyledTableRow>
               );
             })}
           </TableBody>
@@ -83,7 +95,7 @@ function ProblemsTable({ data, columns }: { data: Problem[]; columns: [] }) {
         }}
         ActionsComponent={TablePaginationActions}
       />
-    </Box>
+    </Container>
   );
 }
 export default ProblemsTable;

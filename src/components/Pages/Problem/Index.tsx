@@ -3,7 +3,7 @@ import Editor from '@monaco-editor/react';
 import * as monaco from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
 import getProblem from '../../../services/getProblem';
-import { Alert, Backdrop, Box, Button, Chip, CircularProgress, Stack, Typography } from '@mui/material';
+import { Alert, Backdrop, Box, Button, Chip, CircularProgress, Container, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import Layout from '../../UI/Layout';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
@@ -1009,10 +1009,14 @@ export default function Problem() {
 
   return (
     <Layout showFooter={false}>
-      <div className='tw-flex tw-gap-2 '>
+      <Container maxWidth='xl' className='tw-flex tw-gap-2 '>
         <div
-          className={`tw-flex-1 tw-w-45 tw-p-2 tw-border-2 tw-border-[${colorMode === 'light' ? '#BEE3F8' : '#319795'}] tw-rounded-lg !tw-bg-${colorMode === 'light' ? 'white' : 'black'}`}
-          style={{ backgroundColor: colorMode === 'light' ? 'white' : '#24292e' }}
+          className={`tw-flex-1 tw-w-45 tw-p-2 tw-border-2 tw-rounded-lg`}
+          style={{
+            backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
+            borderWidth: '2px',
+            borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
+          }}
         >
           <Stack spacing={8} className='tw-p-2'>
             <Box>
@@ -1045,10 +1049,14 @@ export default function Problem() {
           </Stack>
         </div>
         <div
-          className={`tw-flex-1 tw-w-45 tw-p-2 tw-border-2 tw-border-[${colorMode === 'light' ? '#CBD5E0' : '#4A5568'}] tw-rounded-lg`}
-          style={{ backgroundColor: colorMode === 'light' ? 'white' : '#24292e' }}
+          className={`tw-flex-1 tw-w-45 tw-p-2 tw-border-2 tw-rounded-lg`}
+          style={{
+            backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
+            borderWidth: '2px',
+            borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
+          }}
         >
-          <div className='tw-border-b-[1px] tw-p-2'>
+          <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
             <LanguageDropDown language={langauge} handleChange={handleChange} />
           </div>
           <Editor
@@ -1075,7 +1083,7 @@ export default function Problem() {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </Layout>
   );
 }

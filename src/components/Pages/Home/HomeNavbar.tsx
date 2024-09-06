@@ -1,14 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link as ReactLink } from 'react-router-dom';
 import darklogo from '../../../assets/images/logo-dark.26900637.svg';
 import lightlogo from '../../../assets/images/logo-light.5034df26.svg';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
-import { Avatar, Button, IconButton, ListItemIcon, Menu, MenuItem, Tooltip } from '@mui/material';
+import { Avatar, Button, IconButton, Link, ListItemIcon, Menu, MenuItem, Tooltip } from '@mui/material';
 import { useAuthSlice } from '../../../store/authslice/auth';
 import { useState } from 'react';
 import { useUserSlice } from '../../../store/user';
 import EmailIcon from '@mui/icons-material/Email';
-import WbSunnyIcon from '@mui/icons-material/WbSunny';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
+import DarkModeIcon from '@mui/icons-material/DarkModeOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 export default function HomeNavbar() {
@@ -26,7 +26,7 @@ export default function HomeNavbar() {
     setAnchorEl(null);
   };
   return (
-    <nav className='tw-container-lg tw-mx-auto tw-flex tw-justify-between tw-px-4'>
+    <nav className='tw-container-lg tw-mx-auto tw-flex tw-justify-around tw-p-2 tw-bottom-2 tw-border-b-[#ffffff24]'>
       <div className='tw-flex tw-items-center tw-gap-2'>
         <img
           src={colorMode === 'light' ? darklogo : lightlogo}
@@ -35,10 +35,28 @@ export default function HomeNavbar() {
           className='tw-object-contain'
         ></img>
       </div>
-      <ul className='tw-list-none tw-flex tw-justify-between tw-p-4 w-items-center tw-w-60'>
-        <li>
+      <ul className='tw-list-none tw-flex tw-justify-between tw-items-center'>
+        <li className='tw-flex tw-justify-center tw-items-center'>
           {!isLogedIn ? (
-            <Link to='/signin'>SignIn</Link>
+            <div className='tw-flex tw-justify-between tw-items-center'>
+              <Link
+                className={`tw-py-2 tw-px-4 ${colorMode === 'dark' ? 'tw-text-white' : ''}`}
+                underline='hover'
+                component={ReactLink}
+                to='/signin'
+              >
+                Sign in
+              </Link>
+              <span>or</span>
+              <Link
+                className={`tw-py-2 tw-px-4 ${colorMode === 'dark' ? 'tw-text-white' : ''}`}
+                underline='hover'
+                component={ReactLink}
+                to='/signup'
+              >
+                Sign up
+              </Link>
+            </div>
           ) : (
             <>
               <Tooltip title='Account settings'>
@@ -86,7 +104,7 @@ export default function HomeNavbar() {
             onClick={toggleColorMode}
             size='large'
           >
-            {colorMode === 'dark' ? <WbSunnyIcon /> : <DarkModeIcon />}
+            {colorMode === 'dark' ? <LightModeOutlinedIcon sx={{ color: 'white' }} /> : <DarkModeIcon />}
           </Button>
         </li>
       </ul>

@@ -8,6 +8,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import ProblemsTable from './ProblemsTable';
 import { Link } from 'react-router-dom';
 import { useUserSlice } from '../../../store/user';
+import { difficultyColors } from '../../../constants/Index';
 
 export default function ProblemsSet({ user }: { user: User | null }) {
   const [open, setOpen] = useState<boolean>(true);
@@ -47,7 +48,7 @@ export default function ProblemsSet({ user }: { user: User | null }) {
       columnHelper.accessor((row) => row.difficulty, {
         id: 'Difficulty',
         cell: (info) => {
-          return <div>{info.getValue()}</div>;
+          return <div style={{ color: difficultyColors[info.getValue()] }}>{info.getValue()}</div>;
         },
       }),
     ],

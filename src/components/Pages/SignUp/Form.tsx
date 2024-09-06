@@ -94,7 +94,9 @@ export default function SignUpForm() {
           label='confirm password'
         />
       </FormControl>
-      <Button variant='contained'>Sign Up</Button>
+      <Button color='warning' variant='contained'>
+        Sign Up
+      </Button>
     </Box>
   );
 }
