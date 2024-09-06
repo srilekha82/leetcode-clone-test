@@ -9,8 +9,8 @@ import {
   TextField,
 } from '@mui/material';
 import { useState } from 'react';
-import { MdOutlineVisibility, MdOutlineVisibilityOff } from 'react-icons/md';
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 export default function SignUpForm() {
   const [email, setEmail] = useState<string>('');
   const [username, setUserName] = useState<string>('');
@@ -64,7 +64,7 @@ export default function SignUpForm() {
                 onMouseDown={handleMouseDownPassword}
                 edge='end'
               >
-                {showPassword ? <MdOutlineVisibilityOff /> : <MdOutlineVisibility />}
+                {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
               </IconButton>
             </InputAdornment>
           }
@@ -87,7 +87,7 @@ export default function SignUpForm() {
                 onMouseDown={handleMouseDownPassword}
                 edge='end'
               >
-                {showConfirmPassword ? <MdOutlineVisibilityOff /> : <MdOutlineVisibility />}
+                {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
               </IconButton>
             </InputAdornment>
           }

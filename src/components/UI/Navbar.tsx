@@ -1,10 +1,11 @@
 import { Link as ReactLink } from 'react-router-dom';
 import darklogo from '../../assets/images/logo-dark.26900637.svg';
 import lightlogo from '../../assets/images/logo-light.5034df26.svg';
-import { MdOutlineDarkMode } from 'react-icons/md';
-import { CiLight } from 'react-icons/ci';
 import { usethemeUtils } from '../../context/ThemeWrapper';
 import { Button, Link } from '@mui/material';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import WbSunnyIcon from '@mui/icons-material/WbSunny';
+
 export default function Navbar() {
   const { colorMode, toggleColorMode } = usethemeUtils();
   return (
@@ -27,7 +28,7 @@ export default function Navbar() {
               variant='outlined'
               onClick={toggleColorMode}
             >
-              {colorMode === 'dark' ? <CiLight color='white' fontSize={18} /> : <MdOutlineDarkMode fontSize={18} />}
+              {colorMode === 'dark' ? <WbSunnyIcon /> : <DarkModeIcon />}
             </Button>
           </li>
         </ul>

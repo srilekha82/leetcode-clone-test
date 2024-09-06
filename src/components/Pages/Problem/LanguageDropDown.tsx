@@ -21,7 +21,7 @@ export default function LanguageDropDown({
         return (
           <MenuItem key={`${id}${l}`} value={l}>
             {
-              //@ts-ignore
+              // @ts-ignore
               supportedLanguages[l]
             }
           </MenuItem>

@@ -9,18 +9,19 @@ import {
   OutlinedInput,
   TextField,
 } from '@mui/material';
-import { MdOutlineVisibility } from 'react-icons/md';
-import { MdOutlineVisibilityOff } from 'react-icons/md';
 import { useMutation } from '@tanstack/react-query';
 import signIn from '../../../services/signIn';
-// import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router';
+import { useAuthSlice } from '../../../store/authslice/auth';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+
 export default function LoginForm() {
-  // const [cookies] = useCookies();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const signin = useAuthSlice((state) => state.signIn);
   const navigate = useNavigate();
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -30,7 +31,8 @@ export default function LoginForm() {
     mutationKey: ['signIn'],
     onSuccess(data, _) {
       if (data?.status === 'Success') {
-        navigate('/', { state: data.data });
+        signin();
+        navigate('/', { state: data.data.id });
       }
     },
   });
@@ -66,7 +68,7 @@ export default function LoginForm() {
                 onMouseDown={handleMouseDownPassword}
                 edge='end'
               >
-                {showPassword ? <MdOutlineVisibilityOff /> : <MdOutlineVisibility />}
+                {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
               </IconButton>
             </InputAdornment>
           }

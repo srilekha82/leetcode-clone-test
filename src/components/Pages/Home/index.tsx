@@ -11,8 +11,8 @@ function Home() {
   const { state } = useLocation();
   const { data, isError, error } = useQuery({
     queryKey: ['get-user'],
-    queryFn: () => getUser(state.id),
-    enabled: isLogedIn && state.id,
+    queryFn: () => getUser(state),
+    enabled: isLogedIn && state !== '',
   });
 
   if (isError) {

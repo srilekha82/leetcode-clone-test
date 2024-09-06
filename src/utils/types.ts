@@ -31,7 +31,7 @@ export interface getProblemType extends Omit<commonresponse, 'data'> {
   data: Problem;
 }
 export interface User {
-  name: string;
+  username: string;
   email: string;
   solvedProblems: string[];
   favoriteProgrammingLanguage: string;
