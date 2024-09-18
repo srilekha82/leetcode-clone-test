@@ -72,7 +72,7 @@ export default function LoginForm() {
               </IconButton>
             </InputAdornment>
           }
-          label='password'
+          label='Password'
         />
       </FormControl>
       <Button color='warning' variant='contained' onClick={onClickHandler}>
