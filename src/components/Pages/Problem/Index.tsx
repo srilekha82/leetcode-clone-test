@@ -10,6 +10,7 @@ import { usethemeUtils } from '../../../context/ThemeWrapper';
 import LanguageDropDown from './LanguageDropDown';
 import { supportedLanguages } from '../../../constants/Index';
 import { useAuthSlice } from '../../../store/authslice/auth';
+
 export default function Problem() {
   const { problemname } = useParams();
   const [open, setOpen] = useState<boolean>(true);
@@ -1057,7 +1058,7 @@ export default function Problem() {
           }}
         >
           <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
-            <LanguageDropDown language={langauge} handleChange={handleChange} />
+            <LanguageDropDown label='supported language' language={langauge} handleChange={handleChange} />
           </div>
           <Editor
             theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}

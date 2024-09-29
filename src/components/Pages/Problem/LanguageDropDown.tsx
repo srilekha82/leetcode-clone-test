@@ -4,16 +4,18 @@ import { supportedLanguages } from '../../../constants/Index';
 export default function LanguageDropDown({
   language,
   handleChange,
+  label,
 }: {
   handleChange: (id: number) => void;
   language: number;
+  label: string;
 }) {
   return (
     <Select
       labelId='language'
-      id='supported language'
+      id='language'
       value={language}
-      label='supported language'
+      label={label}
       onChange={(event) => handleChange(event.target.value as number)}
       size='small'
     >

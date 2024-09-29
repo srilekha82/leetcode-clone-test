@@ -1,8 +1,15 @@
 import api from '../API/Index';
-import { commonresponse } from '../utils/types';
-const signUp = async (email: string, password: string) => {
+import { signUpType } from '../utils/types';
+
+const signUp = async (userinfo: {
+  username: string;
+  email: string;
+  password: string;
+  favoriteProgrammingLanguage: string;
+  role:["user"]
+}) => {
   try {
-    const response = await api.post<commonresponse>('users/createUser', { email, password });
+    const response = await api.post<signUpType>('users/createUser', userinfo);
     if (response.data.status === 'Failure') {
       throw new Error(response.data.error);
     }

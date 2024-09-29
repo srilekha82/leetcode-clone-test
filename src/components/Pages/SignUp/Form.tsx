@@ -11,6 +11,12 @@ import {
 import { useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { useMutation } from '@tanstack/react-query';
+import signUp from '../../../services/signUp';
+import LanguageDropDown from '../Problem/LanguageDropDown';
+import { toast } from 'sonner';
+import { supportedLanguages } from '../../../constants/Index';
+
 export default function SignUpForm() {
   const [email, setEmail] = useState<string>('');
   const [username, setUserName] = useState<string>('');
@@ -20,8 +26,39 @@ export default function SignUpForm() {
   const [showConfirmPassword, setShowconfirmPassword] = useState<boolean>(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickConfirmPassword = () => setShowconfirmPassword((show) => !show);
+  const [favoriteProgrammingLanguage, setFavoriteProgrammingLanguage] = useState<number>(93);
+
+  const { mutateAsync } = useMutation({
+    mutationFn: signUp,
+    mutationKey: ['user-create'],
+  });
+
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+  };
+  
+  const handleSubmit = async function () {
+    if (password != confirmPassword) {
+      toast.warning('Password Did Not Match', { position: 'bottom-left' });
+    }
+    try {
+      const response = await mutateAsync({
+        username,
+        email,
+        password,
+        favoriteProgrammingLanguage: supportedLanguages[favoriteProgrammingLanguage],
+        role:["user"]
+      });
+      console.log({ response });
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message, { position: 'bottom-left' });
+      }
+    }
+  };
+
+  const handleChange = function (id: number) {
+    setFavoriteProgrammingLanguage(id);
   };
 
   return (
@@ -94,7 +131,14 @@ export default function SignUpForm() {
           label='confirm password'
         />
       </FormControl>
-      <Button color='warning' variant='contained'>
+      <FormControl>
+        <LanguageDropDown
+          label='Favorite Language'
+          handleChange={handleChange}
+          language={favoriteProgrammingLanguage}
+        />
+      </FormControl>
+      <Button color='warning' variant='contained' onClick={handleSubmit} type='submit'>
         Sign Up
       </Button>
     </Box>

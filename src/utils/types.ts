@@ -44,3 +44,6 @@ export interface getUserType extends Omit<commonresponse, 'data'> {
 export interface signInType extends Omit<commonresponse, 'data'> {
   data: { id: string };
 }
+export interface signUpType extends Omit<commonresponse, 'data'> {
+  data: { id: string };
+}
