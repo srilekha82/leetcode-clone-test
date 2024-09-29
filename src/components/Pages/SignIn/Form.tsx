@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router';
 import { useAuthSlice } from '../../../store/authslice/auth';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { toast } from 'sonner';
 
 export default function LoginForm() {
   const [email, setEmail] = useState<string>('');
@@ -26,18 +27,24 @@ export default function LoginForm() {
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: signIn,
     mutationKey: ['signIn'],
-    onSuccess(data, _) {
+  });
+  const onClickHandler = async () => {
+    try {
+      const data = await mutateAsync({ email, password });
       if (data?.status === 'Success') {
         signin();
         navigate('/', { state: data.data.id });
       }
-    },
-  });
-  const onClickHandler = () => {
-    mutate({ email, password });
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message, {
+          position: 'bottom-left',
+        });
+      }
+    }
   };
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
