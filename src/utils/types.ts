@@ -18,6 +18,8 @@ export interface Problem {
   status: string;
   _id: string;
   starterCode: { lang_id: number; code: string }[];
+  systemCode: { lang_id: number; code: string }[];
+  metadata: metadata;
 }
 export interface commonresponse {
   status: 'Success' | 'Failure';
@@ -46,4 +48,17 @@ export interface signInType extends Omit<commonresponse, 'data'> {
 }
 export interface signUpType extends Omit<commonresponse, 'data'> {
   data: { id: string };
+}
+export interface metadata {
+  input_format: string;
+  output_format: string;
+  judge_input_template: string;
+  variables_names: Record<string, string>;
+  variables_types: Record<string, string>;
+}
+export interface inputformat extends Omit<metadata, 'judge_input_temple' | 'output_format'> {}
+export interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
 }

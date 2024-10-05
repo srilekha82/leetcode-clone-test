@@ -1,15 +1,32 @@
 import { useNavigate, useParams } from 'react-router';
 import Editor from '@monaco-editor/react';
 import * as monaco from '@monaco-editor/react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import getProblem from '../../../services/getProblem';
-import { Alert, Backdrop, Box, Button, Chip, CircularProgress, Container, Stack, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import {
+  Alert,
+  Backdrop,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Container,
+  Skeleton,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
 import Layout from '../../UI/Layout';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
 import LanguageDropDown from './LanguageDropDown';
 import { supportedLanguages } from '../../../constants/Index';
 import { useAuthSlice } from '../../../store/authslice/auth';
+import submitCode from '../../../services/sumbitCode';
+import getStatus from '../../../services/getSubmissionStatus';
+import transformInput, { a11yProps } from '../../../utils/helpers';
+import CustomTabPanel from '../../UI/TabPanel';
 
 export default function Problem() {
   const { problemname } = useParams();
@@ -17,6 +34,13 @@ export default function Problem() {
   const [langauge, setLangauge] = useState<number>(93);
   const { colorMode } = usethemeUtils();
   const isLogedIn = useAuthSlice((state) => state.isLogedIn);
+  const [submissionId, setSubmissionId] = useState<string>('');
+  const [currentTab, setCurrentTab] = useState<number>(0);
+  const [isSumbitted, setIsSumbitted] = useState<boolean>(false);
+
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setCurrentTab(newValue);
+  };
   const navigate = useNavigate();
 
   const handleClose = () => {
@@ -30,7 +54,32 @@ export default function Problem() {
     queryFn: () => {
       return getProblem(problemname?.slice(0, problemname.length - 1) as string);
     },
+    refetchOnWindowFocus: false,
   });
+  const { mutateAsync } = useMutation({
+    mutationKey: ['codesubmission'],
+    mutationFn: submitCode,
+  });
+  const {
+    data: submissiondata,
+    isError: submissionError,
+    isLoading: submissionStatusLoading,
+    isSuccess: submissionStatusSuccess,
+    error: submissionStatusError,
+  } = useQuery({
+    queryKey: ['submissioni', submissionId],
+    queryFn: () => getStatus(submissionId),
+    enabled(query) {
+      if (query.state.status === 'success') {
+        return (
+          query.state.data.status.description === 'Processing' || query.state.data.status.description === 'In Queue'
+        );
+      }
+      return submissionId.trim() != '';
+    },
+    refetchInterval: 2000,
+  });
+  const editorRef = useRef(null);
   useEffect(() => {
     monaco.loader.init().then((monaco) => {
       monaco.editor.defineTheme('mylightTheme', {
@@ -996,15 +1045,64 @@ export default function Problem() {
     );
   }
 
-  const onClickHandler = () => {
+  const onClickHandler = async () => {
     if (!isLogedIn) {
       navigate('/signin');
     }
+
+    if (editorRef.current && data) {
+      const output = data.data.sampleOutput;
+      // @ts-ignore
+      const code = `${editorRef.current.getValue()} \n ${data?.data.systemCode.find((s) => s.lang_id == langauge)?.code}`;
+      try {
+        const input = transformInput(
+          data?.data.sampleInput as string,
+          data?.data.metadata.judge_input_template as string,
+          data?.data.metadata.variables_names as Record<string, string>,
+          data?.data.metadata.variables_types as Record<string, string>
+        );
+        setIsSumbitted(true);
+        setCurrentTab(1);
+        const response = await mutateAsync({ code, expected_output: output, input, language_id: langauge });
+        setSubmissionId(response?.data.token);
+        if (!submissionStatusLoading && submissionStatusSuccess) {
+          console.log(submissiondata);
+        }
+        if (!submissionStatusLoading && submissionError) {
+          console.log(submissionStatusError);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
-  const onSubmitHandler = () => {
+  const onSubmitHandler = async () => {
     if (!isLogedIn) {
       navigate('/signin');
+    }
+    if (editorRef.current && data) {
+      const submissionPromisess = [];
+      const testcases = data.data.testCases;
+      // @ts-ignore
+      const code = `${editorRef.current.getValue()} \n ${data?.data.systemCode.find((s) => s.lang_id == langauge)?.code}`;
+      if (testcases?.length) {
+        for (let index = 0; index < testcases?.length; index++) {
+          if (testcases) {
+            const { input, output } = testcases[index];
+            submissionPromisess.push(mutateAsync({ code, expected_output: output, input, language_id: langauge }));
+          }
+        }
+      }
+      const promiseresults = await Promise.allSettled(submissionPromisess);
+      for (let index = 0; index < promiseresults.length; index++) {
+        const result = promiseresults[index];
+        if (result.status === 'fulfilled') {
+          console.log(result.value);
+        } else {
+          console.log(result.reason);
+        }
+      }
     }
   };
 
@@ -1057,16 +1155,52 @@ export default function Problem() {
             borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
           }}
         >
-          <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
-            <LanguageDropDown label='supported language' language={langauge} handleChange={handleChange} />
-          </div>
-          <Editor
-            theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
-            height='75dvh'
-            language={supportedLanguages[langauge].toLowerCase()}
-            value={data?.data.starterCode.find((s) => s.lang_id == langauge)?.code}
-            className='tw-max-h-[75dvh] tw-overflow-x-auto'
-          />
+          <Tabs value={currentTab} onChange={handleTabChange}>
+            <Tab label='Code' {...a11yProps(0)}></Tab>
+            <Tab label='Test Results' {...a11yProps(1)}></Tab>
+          </Tabs>
+          <CustomTabPanel value={currentTab} index={0}>
+            <>
+              <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
+                <LanguageDropDown label='supported language' language={langauge} handleChange={handleChange} />
+              </div>
+              <Editor
+                theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
+                height='75dvh'
+                language={supportedLanguages[langauge].toLowerCase()}
+                value={data?.data.starterCode.find((s) => s.lang_id == langauge)?.code}
+                className='tw-max-h-[75dvh] tw-overflow-x-auto'
+                onMount={(editor) => {
+                  editorRef.current = editor;
+                }}
+              />
+            </>
+          </CustomTabPanel>
+          <CustomTabPanel value={currentTab} index={1}>
+            {submissionStatusLoading && isSumbitted ? (
+              <Stack className='tw-h-[75dvh]' spacing={2}>
+                <div></div>
+                <Skeleton variant='text' sx={{ marginTop: '10px' }}></Skeleton>
+                <Skeleton variant='rounded' height={60} />
+                <Skeleton variant='rounded' height={60} />
+                <Skeleton variant='rounded' height={60} />
+              </Stack>
+            ) : submissionStatusSuccess && submissiondata.status.description === 'Processing' ? (
+              <Stack className='tw-h-[75dvh]' spacing={2}>
+                <div></div>
+                <Skeleton variant='text' sx={{ marginTop: '10px' }}></Skeleton>
+                <Skeleton variant='rounded' height={60} />
+                <Skeleton variant='rounded' height={60} />
+                <Skeleton variant='rounded' height={60} />
+              </Stack>
+            ) : !isSumbitted && !submissiondata ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '75dvh' }}>
+                <Typography variant='body2'>You must run your code first</Typography>
+              </div>
+            ) : (
+              <Typography className='tw-h-[75dvh]'>{JSON.stringify(submissiondata)}</Typography>
+            )}
+          </CustomTabPanel>
           <div className='tw-flex tw-justify-between tw-items-center'>
             <div>Saved</div>
             <div className='tw-flex tw-gap-2'>

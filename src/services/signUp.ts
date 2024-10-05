@@ -6,7 +6,7 @@ const signUp = async (userinfo: {
   email: string;
   password: string;
   favoriteProgrammingLanguage: string;
-  role:["user"]
+  role: ['user'];
 }) => {
   try {
     const response = await api.post<signUpType>('users/createUser', userinfo);

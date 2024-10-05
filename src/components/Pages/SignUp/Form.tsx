@@ -36,8 +36,8 @@ export default function SignUpForm() {
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
-  
-  const handleSubmit = async function () {
+
+  async function handleSubmit() {
     if (password != confirmPassword) {
       toast.warning('Password Did Not Match', { position: 'bottom-left' });
     }
@@ -47,7 +47,7 @@ export default function SignUpForm() {
         email,
         password,
         favoriteProgrammingLanguage: supportedLanguages[favoriteProgrammingLanguage],
-        role:["user"]
+        role: ['user'],
       });
       console.log({ response });
     } catch (error) {
@@ -55,11 +55,11 @@ export default function SignUpForm() {
         toast.error(error.message, { position: 'bottom-left' });
       }
     }
-  };
+  }
 
-  const handleChange = function (id: number) {
+  function handleChange(id: number) {
     setFavoriteProgrammingLanguage(id);
-  };
+  }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
