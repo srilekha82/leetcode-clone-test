@@ -27,6 +27,8 @@ import submitCode from '../../../services/sumbitCode';
 import getStatus from '../../../services/getSubmissionStatus';
 import transformInput, { a11yProps } from '../../../utils/helpers';
 import CustomTabPanel from '../../UI/TabPanel';
+import { submission } from '../../../utils/types';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 export default function Problem() {
   const { problemname } = useParams();
@@ -37,9 +39,14 @@ export default function Problem() {
   const [submissionId, setSubmissionId] = useState<string>('');
   const [currentTab, setCurrentTab] = useState<number>(0);
   const [isSumbitted, setIsSumbitted] = useState<boolean>(false);
+  const [submissions, setSubmissions] = useState<submission[]>([]);
+  const [submissionTab, setSubmissionTab] = useState<number>(0);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
+  };
+  const handleSubmissionTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setSubmissionTab(newValue);
   };
   const navigate = useNavigate();
 
@@ -1053,7 +1060,7 @@ export default function Problem() {
     if (editorRef.current && data) {
       const output = data.data.sampleOutput;
       // @ts-ignore
-      const code = `${editorRef.current.getValue()} \n ${data?.data.systemCode.find((s) => s.lang_id == langauge)?.code}`;
+      const code = `${data.data.imports.find((s) => s.lang_id == langauge)?.code} \n${editorRef.current.getValue()} \n${data?.data.systemCode.find((s) => s.lang_id == langauge)?.code}`;
       try {
         const input = transformInput(
           data?.data.sampleInput as string,
@@ -1066,7 +1073,7 @@ export default function Problem() {
         const response = await mutateAsync({ code, expected_output: output, input, language_id: langauge });
         setSubmissionId(response?.data.token);
         if (!submissionStatusLoading && submissionStatusSuccess) {
-          console.log(submissiondata);
+          setSubmissions([submissiondata]);
         }
         if (!submissionStatusLoading && submissionError) {
           console.log(submissionStatusError);
@@ -1085,7 +1092,7 @@ export default function Problem() {
       const submissionPromisess = [];
       const testcases = data.data.testCases;
       // @ts-ignore
-      const code = `${editorRef.current.getValue()} \n ${data?.data.systemCode.find((s) => s.lang_id == langauge)?.code}`;
+      const code = `${data.data.imports.find((s) => s.lang_id == langauge)?.code} \n ${editorRef.current.getValue()} \n ${data?.data.systemCode.find((s) => s.lang_id == langauge)?.code}`;
       if (testcases?.length) {
         for (let index = 0; index < testcases?.length; index++) {
           if (testcases) {
@@ -1162,7 +1169,12 @@ export default function Problem() {
           <CustomTabPanel value={currentTab} index={0}>
             <>
               <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
-                <LanguageDropDown label='supported language' language={langauge} handleChange={handleChange} />
+                <LanguageDropDown
+                  languagestoskip={data?.data.languagestoskip ?? ([] as number[])}
+                  label='supported language'
+                  language={langauge}
+                  handleChange={handleChange}
+                />
               </div>
               <Editor
                 theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
@@ -1177,28 +1189,73 @@ export default function Problem() {
             </>
           </CustomTabPanel>
           <CustomTabPanel value={currentTab} index={1}>
-            {submissionStatusLoading && isSumbitted ? (
+            {(submissionStatusLoading && isSumbitted)||(submissionStatusSuccess && submissiondata.status.description === 'Processing')  ? (
               <Stack className='tw-h-[75dvh]' spacing={2}>
-                <div></div>
-                <Skeleton variant='text' sx={{ marginTop: '10px' }}></Skeleton>
-                <Skeleton variant='rounded' height={60} />
-                <Skeleton variant='rounded' height={60} />
-                <Skeleton variant='rounded' height={60} />
+               <SkeletonLoaderResults/>
               </Stack>
-            ) : submissionStatusSuccess && submissiondata.status.description === 'Processing' ? (
-              <Stack className='tw-h-[75dvh]' spacing={2}>
-                <div></div>
-                <Skeleton variant='text' sx={{ marginTop: '10px' }}></Skeleton>
-                <Skeleton variant='rounded' height={60} />
-                <Skeleton variant='rounded' height={60} />
-                <Skeleton variant='rounded' height={60} />
-              </Stack>
-            ) : !isSumbitted && !submissiondata ? (
+            )  : !isSumbitted && !submissiondata ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '75dvh' }}>
                 <Typography variant='body2'>You must run your code first</Typography>
               </div>
             ) : (
-              <Typography className='tw-h-[75dvh]'>{JSON.stringify(submissiondata)}</Typography>
+              submissiondata!=undefined?
+              <Stack spacing={2} className='tw-h-[75dvh]'>
+                <Tabs value={submissionTab} onChange={handleSubmissionTabChange}>
+                  {[submissiondata].map((s, i) => (
+                    <Tab
+                      key={i}
+                      label={
+                        <div className='tw-flex tw-gap-1 tw-items-center'>
+                          <FiberManualRecordIcon
+                            color={s.status.description === 'Accepted' ? 'success' : 'error'}
+                            sx={{ fontSize: '0.7em' }}
+                          />
+                          <span>{`Case ${i + 1}`}</span>
+                        </div>
+                      }
+                      {...a11yProps(i)}
+                    ></Tab>
+                  ))}
+                </Tabs>
+                {data?.data.metadata.variables_names != undefined
+                  ?[submissiondata].map((s, i) => {
+                      const inputvalues = s.stdin.split('\n');
+                      return (
+                        <CustomTabPanel index={i} key={`language${s.language_id}`} value={submissionTab}>
+                          <Stack>
+                            {Object.values(data?.data.metadata.variables_names).map((l, j) => (
+                              <Stack>
+                                <Typography className='tw-p-2' color='primary'>
+                                  {l} =
+                                </Typography>
+                                <Typography
+                                  variant='body1'
+                                  className='tw-p-2'
+                                  sx={{ backgroundColor: '#ECECEC' }}
+                                  bgcolor={'Background'}
+                                >
+                                  {inputvalues[j]}
+                                </Typography>
+                              </Stack>
+                            ))}
+                            <Typography className='tw-p-2' color='primary'>
+                              Output
+                            </Typography>
+                            <Typography sx={{ backgroundColor: '#ECECEC' }} className='tw-p-2'>
+                              {s.stdout}
+                            </Typography>
+                            <Typography className='tw-p-2' color='primary'>
+                              Expected
+                            </Typography>
+                            <Typography sx={{ backgroundColor: '#ECECEC' }} className='tw-p-2'>
+                              {s.expected_output}
+                            </Typography>
+                          </Stack>
+                        </CustomTabPanel>
+                      );
+                    })
+                  : null}
+              </Stack>:<SkeletonLoaderResults/>
             )}
           </CustomTabPanel>
           <div className='tw-flex tw-justify-between tw-items-center'>
@@ -1221,4 +1278,12 @@ export default function Problem() {
       </Container>
     </Layout>
   );
+}
+function SkeletonLoaderResults() {
+  return <>
+   <div></div>
+                <Skeleton variant='text' sx={{ marginTop: '10px' }}></Skeleton>
+                <Skeleton variant='rounded' height={60} />
+                <Skeleton variant='rounded' height={60} />
+                <Skeleton variant='rounded' height={60} /></>
 }

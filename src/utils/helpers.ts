@@ -5,31 +5,40 @@ export default function transformInput(
   variableTypes: Record<string, string>
 ) {
   const regexPatterns = {
-    array: (varName: string) => new RegExp(`${varName} = \\[(.*?)\\]`),
-    int: (varName: string) => new RegExp(`${varName} = (\\d+)`),
-    string: (varName: string) => new RegExp(`${varName} = ['"](.*?)['"]`),
+    array: (varName: string) => new RegExp(`${varName}\\s*=\\s*\\[(.*?)\\]`),
+    int: (varName: string) => new RegExp(`${varName}\\s*=\\s*(\\d+)`),
+    string: (varName: string) => new RegExp(`${varName}\\s*=\\s*['"](.*?)['"]`),
   };
 
   let extractedValues: Record<string, string> = {};
 
+  // Extract values from userInput based on variable types and names
   for (let varName in variableNames) {
     const varType: string = variableTypes[varName];
     // @ts-ignore
     const regexPattern = regexPatterns[varType](variableNames[varName]);
     const match = userInput.match(regexPattern);
     if (match) {
-      // @ts-ignore
-      extractedValues[varName] = match[1];
+      if (varType === 'array') {
+        extractedValues[varName] = match[1]
+          .split(',')
+          .map((s: string) => s.trim().replace(/['"]/g, ''))
+          .join(',');
+      } else {
+        extractedValues[varName] = match[1];
+      }
     }
   }
+
+  // Replace placeholders in judgeTemplate sequentially for each variable
   let transformedInput = judgeTemplate;
   for (let key in extractedValues) {
-    const placeholderType = variableTypes[key];
-    const placeholder = `{${placeholderType}}`;
-    transformedInput = transformedInput.replace(placeholder, extractedValues[key]);
+    transformedInput = transformedInput.replace(`{${variableTypes[key]}}`, extractedValues[key]);
   }
+
   return transformedInput;
 }
+
 export function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,

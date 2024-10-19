@@ -19,7 +19,9 @@ export interface Problem {
   _id: string;
   starterCode: { lang_id: number; code: string }[];
   systemCode: { lang_id: number; code: string }[];
+  imports: { lang_id: number; code: string }[];
   metadata: metadata;
+  languagestoskip: number[];
 }
 export interface commonresponse {
   status: 'Success' | 'Failure';
@@ -61,4 +63,15 @@ export interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
+}
+export interface submission {
+  language_id: number;
+  stdin: string;
+  stdout: string;
+  stderr: null | string;
+  status: {
+    id: number;
+    description: string;
+  };
+  expected_output: string;
 }

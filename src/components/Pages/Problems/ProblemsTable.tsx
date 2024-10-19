@@ -75,7 +75,7 @@ function ProblemsTable({ data, columns }: { data: Problem[]; columns: [] }) {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: data.length }]}
+        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: data?.length }]}
         component='div'
         count={table.getFilteredRowModel().rows.length}
         rowsPerPage={pageSize}
