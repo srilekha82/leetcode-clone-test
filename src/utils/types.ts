@@ -34,16 +34,9 @@ export interface getProblemsType extends Omit<commonresponse, 'data'> {
 export interface getProblemType extends Omit<commonresponse, 'data'> {
   data: Problem;
 }
-export interface User {
-  username: string;
-  email: string;
-  solvedProblems: string[];
-  favoriteProgrammingLanguage: string;
-  submissions: string[];
-  roles: string[];
-}
+
 export interface getUserType extends Omit<commonresponse, 'data'> {
-  data: User;
+  data: user;
 }
 export interface signInType extends Omit<commonresponse, 'data'> {
   data: { id: string };
@@ -51,6 +44,11 @@ export interface signInType extends Omit<commonresponse, 'data'> {
 export interface signUpType extends Omit<commonresponse, 'data'> {
   data: { id: string };
 }
+
+export interface updateUserType extends Omit<commonresponse, 'data'> {
+  data: user;
+}
+
 export interface metadata {
   input_format: string;
   output_format: string;
@@ -67,11 +65,37 @@ export interface TabPanelProps {
 export interface submission {
   language_id: number;
   stdin: string;
-  stdout: string;
+  stdout: null | string;
   stderr: null | string;
   status: {
     id: number;
     description: string;
   };
   expected_output: string;
+}
+export interface problemsubmission {
+  problemId: string;
+  submissionId: string;
+  languageId: number;
+  status: 'Accepted' | 'Wrong Answer' | 'Error';
+  submittedAt: Date;
+}
+export interface user {
+  _id: string;
+  username: string;
+  email: string;
+  password: string;
+  favoriteProgrammingLanguage: string;
+  roles: string[];
+  submissions: problemsubmission[];
+}
+export interface createUser extends Partial<user> {}
+export interface updateuser extends Partial<user> {}
+export type status = 'Accepted' | 'Wrong Answer' | 'Processing';
+export interface submissionprops {
+  problemId: string;
+  submissionId: string;
+  languageId: number;
+  status: string;
+  submittedAt: Date;
 }

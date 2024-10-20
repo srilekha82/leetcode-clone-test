@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import { User } from '../../utils/types';
+import { user } from '../../utils/types';
 
 interface userSlice {
-  user: User | null;
-  setUser: (user: User) => void;
+  user: user | null;
+  setUser: (user: user) => void;
 }
 export const useUserSlice = create<userSlice>()((set) => ({
   user: null,

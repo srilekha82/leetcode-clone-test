@@ -3,14 +3,14 @@ import getProblems from '../../../services/getProblems';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useEffect, useMemo, useState } from 'react';
-import { Problem, User } from '../../../utils/types';
+import { Problem, user } from '../../../utils/types';
 import { createColumnHelper } from '@tanstack/react-table';
 import ProblemsTable from './ProblemsTable';
 import { Link } from 'react-router-dom';
 import { useUserSlice } from '../../../store/user';
 import { difficultyColors } from '../../../constants/Index';
 
-export default function ProblemsSet({ user }: { user: User | null }) {
+export default function ProblemsSet({ user }: { user: user | null }) {
   const [open, setOpen] = useState<boolean>(true);
   const setUser = useUserSlice((state) => state.setUser);
   const handleClose = () => {
