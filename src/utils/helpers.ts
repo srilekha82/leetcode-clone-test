@@ -1,3 +1,5 @@
+import { submission } from './types';
+
 export default function transformInput(
   userInput: string,
   judgeTemplate: string,
@@ -44,4 +46,18 @@ export function a11yProps(index: number) {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   };
+}
+
+export function getResult(batchwiseresults: submission[]) {
+  let successcount = 0;
+
+  for (let index = 0; index < batchwiseresults.length; index++) {
+    const result = batchwiseresults[index];
+    // result
+    if (result.status.description != 'Accepted') {
+      return { status: false, successcount };
+    }
+    successcount++;
+  }
+  return { status: true, successcount };
 }

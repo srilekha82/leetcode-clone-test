@@ -99,3 +99,13 @@ export interface submissionprops {
   status: string;
   submittedAt: Date;
 }
+export interface batchsubmission {
+  token: string;
+}
+export interface problemsubmissionstatus {
+  problemId: string;
+  submissionId: string;
+  languageId: number;
+  status: string;
+  submittedAt: Date;
+}
