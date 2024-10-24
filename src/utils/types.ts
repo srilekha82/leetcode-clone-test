@@ -48,6 +48,9 @@ export interface signUpType extends Omit<commonresponse, 'data'> {
 export interface updateUserType extends Omit<commonresponse, 'data'> {
   data: user;
 }
+export interface refreshTokenRes extends Omit<commonresponse, 'data'> {
+  data: {};
+}
 
 export interface metadata {
   input_format: string;

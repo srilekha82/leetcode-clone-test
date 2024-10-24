@@ -12,7 +12,7 @@ function Home() {
   const { data, isError, error } = useQuery({
     queryKey: ['get-user'],
     queryFn: () => getUser(state),
-    enabled: isLogedIn && state !== '',
+    enabled: isLogedIn && state !== ''&&state!==null,
   });
 
   if (isError) {

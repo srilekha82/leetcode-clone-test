@@ -96,6 +96,9 @@ export default function Problem() {
       monacoinstance.editor.defineTheme('mylightTheme', lighttheme as theme);
       monacoinstance.editor.defineTheme('mydarkTheme', darktheme as theme);
     });
+    return ()=>{
+      setProblemSubmissions([])
+    }
   }, [colorMode]);
 
   if (isLoading) {
