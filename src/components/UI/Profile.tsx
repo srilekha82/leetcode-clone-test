@@ -6,10 +6,13 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuthSlice } from '../../store/authslice/auth';
 import { useMutation } from '@tanstack/react-query';
 import signOutAPI from '../../services/signOut';
+import { useNavigate } from 'react-router';
 
 export default function Profile() {
   const user = useUserSlice((state) => state.user);
+  const setUser = useUserSlice((state) => state.setUser);
   const signOut = useAuthSlice((state) => state.signOut);
+  const navigate = useNavigate();
   const { mutateAsync, isError, error } = useMutation({
     mutationKey: ['sign-out'],
     mutationFn: signOutAPI,
@@ -59,7 +62,9 @@ export default function Profile() {
                 console.log(error);
                 return;
               }
+              setUser(null);
               signOut();
+              navigate('/signin');
             }}
           >
             <LogoutIcon />

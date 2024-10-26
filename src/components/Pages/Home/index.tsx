@@ -1,20 +1,29 @@
-import { useAuthSlice } from '../../../store/authslice/auth';
 import Footer from '../../UI/Footer';
 import ProblemsSet from '../Problems';
 import HomeNavbar from './HomeNavbar';
 import { useQuery } from '@tanstack/react-query';
 import getUser from '../../../services/getUser';
 import { useLocation } from 'react-router';
+import { useEffect } from 'react';
+import { useAuthSlice } from '../../../store/authslice/auth';
+import { useUserSlice } from '../../../store/user';
 
 function Home() {
   const isLogedIn = useAuthSlice((state) => state.isLogedIn);
+  const sessionLoading = useUserSlice((state) => state.sessionLoading);
+  const user = useUserSlice((state) => state.user);
+  const setUser = useUserSlice((state) => state.setUser);
   const { state } = useLocation();
-  const { data, isError, error } = useQuery({
+  const { data, isError, error, isSuccess } = useQuery({
     queryKey: ['get-user'],
     queryFn: () => getUser(state),
-    enabled: isLogedIn && state !== ''&&state!==null,
+    enabled: isLogedIn && state !== '' && state !== null && sessionLoading == 'Completed' && user == null,
   });
-
+  useEffect(() => {
+    if (data && isSuccess) {
+      setUser(data.data);
+    }
+  }, [data, isSuccess]);
   if (isError) {
     console.log(error);
   }
@@ -23,7 +32,7 @@ function Home() {
     <>
       <HomeNavbar />
       <main className='tw-mt-4'>
-        <ProblemsSet user={data?.data ?? null} />
+        <ProblemsSet />
       </main>
       <Footer />
     </>

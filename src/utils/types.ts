@@ -4,7 +4,7 @@ export interface themeContext {
   toggleColorMode: () => void;
   colorMode: 'light' | 'dark';
 }
-
+export interface authCtx {}
 export interface contextWrapperProps {
   children: ReactNode;
 }
@@ -39,7 +39,7 @@ export interface getUserType extends Omit<commonresponse, 'data'> {
   data: user;
 }
 export interface signInType extends Omit<commonresponse, 'data'> {
-  data: { id: string };
+  data: { id: string; sessionId: string };
 }
 export interface signUpType extends Omit<commonresponse, 'data'> {
   data: { id: string };
@@ -50,6 +50,9 @@ export interface updateUserType extends Omit<commonresponse, 'data'> {
 }
 export interface refreshTokenRes extends Omit<commonresponse, 'data'> {
   data: {};
+}
+export interface validateSessionRes extends Omit<commonresponse, 'data'> {
+  data: { user: user | null; isExipred: boolean };
 }
 
 export interface metadata {

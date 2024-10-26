@@ -1,8 +1,8 @@
 import { protectedapi } from '../API/Index';
-import { getProblemType } from '../utils/types';
-const getProblem = async (id: string) => {
+import { validateSessionRes } from '../utils/types';
+const validateSession = async () => {
   try {
-    const response = await protectedapi.get<getProblemType>(`/problems/${id}`);
+    const response = await protectedapi.post<validateSessionRes>('/auth/session/validation');
     if (response.data.status === 'Failure') {
       throw new Error(response.data.error);
     }
@@ -14,4 +14,4 @@ const getProblem = async (id: string) => {
   }
 };
 
-export default getProblem;
+export default validateSession;
