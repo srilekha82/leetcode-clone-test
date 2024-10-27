@@ -1,4 +1,4 @@
-import { submission } from './types';
+import { problemsubmission, submission } from './types';
 
 export default function transformInput(
   userInput: string,
@@ -60,4 +60,12 @@ export function getResult(batchwiseresults: submission[]) {
     successcount++;
   }
   return { status: true, successcount };
+}
+export function isAccepted(problemId: string, submissions: problemsubmission[]) {
+  const userSubmissions = [...new Set(submissions.filter((s) => s.status === 'Accepted').map((s) => s.problemId))];
+  return userSubmissions.includes(problemId);
+}
+export function isRejected(problemId: string, submissions: problemsubmission[]) {
+  const userSubmissions = [...new Set(submissions.filter((s) => s.status === 'Wrong Answer').map((s) => s.problemId))];
+  return userSubmissions.includes(problemId);
 }

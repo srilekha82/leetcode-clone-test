@@ -8,6 +8,10 @@ import { createColumnHelper } from '@tanstack/react-table';
 import ProblemsTable from './ProblemsTable';
 import { Link } from 'react-router-dom';
 import { difficultyColors } from '../../../constants/Index';
+import { isAccepted, isRejected } from '../../../utils/helpers';
+import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
+import { useUserSlice } from '../../../store/user';
+import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
 
 export default function ProblemsSet() {
   const [open, setOpen] = useState<boolean>(true);
@@ -20,12 +24,24 @@ export default function ProblemsSet() {
     queryFn: getProblems,
   });
 
+  const user = useUserSlice((state) => state.user);
+
   const columns = useMemo(
     () => [
       columnHelper.accessor((row) => row.status, {
         id: 'Status',
         cell: (info) => {
-          return <div> {info.getValue()}</div>;
+          let icon;
+          if (user) {
+            icon = isAccepted(info.row.original._id, user?.submissions) ? (
+              <TaskAltOutlinedIcon color="success" />
+            ) : isRejected(info.row.original._id, user?.submissions) ? (
+              <PendingOutlinedIcon color='warning' />
+            ) : null;
+          } else {
+            icon = null;
+          }
+          return <div> {icon}</div>;
         },
       }),
       columnHelper.accessor((row) => row.title, {
@@ -45,7 +61,7 @@ export default function ProblemsSet() {
         },
       }),
     ],
-    []
+    [user]
   );
   if (isLoading) {
     return (
