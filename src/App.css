@@ -1,0 +1,13 @@
+.problem-container{
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns:1fr 1fr;
+    transition: all 0.3s ease;
+}
+.problem-container.expanded{
+    grid-template-columns:1fr;
+}
+.problem-layout{
+    height: 100%;
+    max-height: calc(100% - 70px);
+}

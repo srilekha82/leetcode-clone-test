@@ -67,6 +67,8 @@ export interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
+  wrapperClassName?: string;
+  innerDivClassName?: string;
 }
 export interface submission {
   language_id: number;

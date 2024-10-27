@@ -10,13 +10,13 @@ import {
   Button,
   Chip,
   CircularProgress,
-  Container,
+  IconButton,
   Stack,
   Tab,
   Tabs,
   Typography,
 } from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import Layout from '../../UI/Layout';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
 import LanguageDropDown from './LanguageDropDown';
@@ -33,9 +33,14 @@ import SkeletonResultsLoader from '../../UI/SkeletonResultsLoader';
 import addSubmission from '../../../services/addSubmission';
 import batchwiseSubmission from '../../../services/batchwiseSubmission';
 import ProblemSubmissions from './ProblemSubmissions';
+import SettingsOverscanOutlinedIcon from '@mui/icons-material/SettingsOverscanOutlined';
+import CloseFullscreenOutlinedIcon from '@mui/icons-material/CloseFullscreenOutlined';
+import ChevronLeftOutlinedIcon from '@mui/icons-material/ChevronLeftOutlined';
+import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 
 export default function Problem() {
   const { problemname } = useParams();
+  const editorRef = useRef(null);
   const [open, setOpen] = useState<boolean>(true);
   const [langauge, setLangauge] = useState<number>(93);
   const { colorMode } = usethemeUtils();
@@ -54,6 +59,16 @@ export default function Problem() {
   const [leftTab, setLeftTab] = useState<number>(0);
   const [problemRunStatus, setproblemRunStatus] = useState<submission[]>([]);
   const [problemsubmissions, setProblemSubmissions] = useState<problemsubmissionstatus[]>(user?.submissions ?? []);
+  const [isLeftPanelExpanded, toggleLeftPanelExpansion] = useReducer((state) => {
+    if (state&&editorRef.current) {
+      //@ts-ignore
+      editorRef.current.layout({})
+    }
+    return !state;
+  }, false);
+  const [isRightPanelExpanded, toggleRightPanelExpansion] = useReducer((state) => !state, false);
+  const [shrinkLeftPan, toggleShrinkLeftPan] = useReducer((state) => !state, false);
+  const [shrinkRightPan, toggleShrinkRightPan] = useReducer((state) => !state, false);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
@@ -94,8 +109,6 @@ export default function Problem() {
     mutationKey: ['updatesubmission'],
     mutationFn: addSubmission,
   });
-
-  const editorRef = useRef(null);
 
   useEffect(() => {
     monaco.loader.init().then((monacoinstance: Monaco) => {
@@ -282,20 +295,34 @@ export default function Problem() {
   };
 
   return (
-    <Layout showFooter={false}>
-      <Container maxWidth='xl' className='tw-flex tw-gap-2 '>
+    <Layout className='problem-layout' showFooter={false}>
+      <div
+        className={`tw-gap-2 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : ''}`}
+      >
         <div
-          className={`tw-flex-1 tw-w-45 tw-p-2 tw-border-2 tw-rounded-lg`}
+          className={`tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg`}
           style={{
             backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
             borderWidth: '2px',
             borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
+            display: isLeftPanelExpanded ? 'none' : 'block',
+            gridColumn: isRightPanelExpanded ? '1 / -1' : 'auto',
           }}
         >
-          <Tabs value={leftTab} onChange={handleLeftTabChange}>
-            <Tab label='Description' {...a11yProps(0)}></Tab>
-            <Tab label='Submissions' {...a11yProps(1)}></Tab>
-          </Tabs>
+          <div className='tw-flex tw-items-center tw-justify-between'>
+            <Tabs value={leftTab} onChange={handleLeftTabChange}>
+              <Tab label='Description' {...a11yProps(0)}></Tab>
+              <Tab label='Submissions' {...a11yProps(1)}></Tab>
+            </Tabs>
+            <div>
+              <IconButton onClick={toggleRightPanelExpansion} size='small'>
+                {!isRightPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
+              </IconButton>
+              <IconButton onClick={toggleShrinkRightPan} size='small'>
+                {!shrinkRightPan ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
+              </IconButton>
+            </div>
+          </div>
           <CustomTabPanel value={leftTab} index={0}>
             <Stack spacing={8} className='tw-p-2'>
               <Box>
@@ -332,19 +359,36 @@ export default function Problem() {
           </CustomTabPanel>
         </div>
         <div
-          className={`tw-flex-1 tw-w-45 tw-p-2 tw-border-2 tw-rounded-lg`}
+          className={`tw-p-2 tw-border-2 tw-rounded-lg tw-h-full`}
           style={{
             backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
             borderWidth: '2px',
             borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
+            gridColumn: isLeftPanelExpanded ? '1 / -1' : 'auto',
+            display: isRightPanelExpanded ? 'none' : 'block',
           }}
         >
-          <Tabs value={currentTab} onChange={handleTabChange}>
-            <Tab label='Code' {...a11yProps(0)}></Tab>
-            <Tab label='Test Results' {...a11yProps(1)}></Tab>
-            <Tab label='Output' {...a11yProps(2)}></Tab>
-          </Tabs>
-          <CustomTabPanel value={currentTab} index={0}>
+          <div className='tw-flex tw-items-center tw-justify-between'>
+            <Tabs value={currentTab} onChange={handleTabChange}>
+              <Tab label='Code' {...a11yProps(0)}></Tab>
+              <Tab label='Test Results' {...a11yProps(1)}></Tab>
+              <Tab label='Output' {...a11yProps(2)}></Tab>
+            </Tabs>
+            <div>
+              <IconButton onClick={toggleLeftPanelExpansion} size='small'>
+                {!isLeftPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
+              </IconButton>
+              <IconButton onClick={toggleShrinkLeftPan} size='small'>
+                {!shrinkLeftPan ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
+              </IconButton>
+            </div>
+          </div>
+          <CustomTabPanel
+            innerDivClassName='tw-h-full'
+            wrapperClassName='tw-max-h-[75dvh] tw-h-full'
+            value={currentTab}
+            index={0}
+          >
             <>
               <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
                 <LanguageDropDown
@@ -356,10 +400,10 @@ export default function Problem() {
               </div>
               <Editor
                 theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
-                height='75dvh'
                 language={supportedLanguages[langauge].toLowerCase()}
                 value={data?.data.starterCode.find((s) => s.lang_id == langauge)?.code}
-                className='tw-max-h-[75dvh] tw-overflow-x-auto'
+                className={`tw-max-h-full tw-overflow-x-auto`}
+                height={'85%'}
                 onMount={(editor) => {
                   editorRef.current = editor;
                 }}
@@ -491,7 +535,7 @@ export default function Problem() {
             </div>
           </div>
         </div>
-      </Container>
+      </div>
     </Layout>
   );
 }

@@ -6,6 +6,7 @@ import { CookiesProvider } from 'react-cookie';
 import { Toaster } from 'sonner';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthContextWrapper } from './context/AuthContext';
+import './App.css';
 
 const queryClient = new QueryClient();
 function App() {
