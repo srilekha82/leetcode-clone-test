@@ -22,7 +22,7 @@ export default function LanguageDropDown({
       size='small'
     >
       {Object.keys(supportedLanguages)
-        .filter((v) => !languagestoskip.includes(parseInt(v)))
+        .filter((v) => !languagestoskip?.includes(parseInt(v)))
         .map((l, id) => {
           return (
             <MenuItem key={`${id}${l}`} value={l}>

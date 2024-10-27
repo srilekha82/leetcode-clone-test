@@ -26,7 +26,9 @@ export const AuthContextWrapper: FC<contextWrapperProps> = ({ children }) => {
     }
   }, [sessionLoading]);
   useEffect(() => {
-    checkSession();
+    if (!['/signin', '/signup'].includes(window.location.pathname)) {
+      checkSession();
+    }
   }, []);
 
   return <AuthContext.Provider value={{}}>{children}</AuthContext.Provider>;

@@ -60,15 +60,14 @@ export default function Problem() {
   const [problemRunStatus, setproblemRunStatus] = useState<submission[]>([]);
   const [problemsubmissions, setProblemSubmissions] = useState<problemsubmissionstatus[]>(user?.submissions ?? []);
   const [isLeftPanelExpanded, toggleLeftPanelExpansion] = useReducer((state) => {
-    if (state&&editorRef.current) {
+    if (state && editorRef.current) {
       //@ts-ignore
-      editorRef.current.layout({})
+      editorRef.current.layout({});
     }
     return !state;
   }, false);
   const [isRightPanelExpanded, toggleRightPanelExpansion] = useReducer((state) => !state, false);
-  const [shrinkLeftPan, toggleShrinkLeftPan] = useReducer((state) => !state, false);
-  const [shrinkRightPan, toggleShrinkRightPan] = useReducer((state) => !state, false);
+
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
@@ -305,8 +304,8 @@ export default function Problem() {
             backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
             borderWidth: '2px',
             borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
-            display: isLeftPanelExpanded ? 'none' : 'block',
-            gridColumn: isRightPanelExpanded ? '1 / -1' : 'auto',
+            display: isLeftPanelExpanded  ? 'none' : 'block',
+            gridColumn: isRightPanelExpanded  ? '1 / -1' : 'auto',
           }}
         >
           <div className='tw-flex tw-items-center tw-justify-between'>
@@ -318,9 +317,9 @@ export default function Problem() {
               <IconButton onClick={toggleRightPanelExpansion} size='small'>
                 {!isRightPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
               </IconButton>
-              <IconButton onClick={toggleShrinkRightPan} size='small'>
+              {/* <IconButton onClick={toggleShrinkRightPan} size='small'>
                 {!shrinkRightPan ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
-              </IconButton>
+              </IconButton> */}
             </div>
           </div>
           <CustomTabPanel value={leftTab} index={0}>
@@ -365,7 +364,7 @@ export default function Problem() {
             borderWidth: '2px',
             borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
             gridColumn: isLeftPanelExpanded ? '1 / -1' : 'auto',
-            display: isRightPanelExpanded ? 'none' : 'block',
+            display: isRightPanelExpanded  ? 'none' : 'block',
           }}
         >
           <div className='tw-flex tw-items-center tw-justify-between'>
@@ -378,9 +377,9 @@ export default function Problem() {
               <IconButton onClick={toggleLeftPanelExpansion} size='small'>
                 {!isLeftPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
               </IconButton>
-              <IconButton onClick={toggleShrinkLeftPan} size='small'>
+              {/* <IconButton onClick={toggleShrinkLeftPan} size='small'>
                 {!shrinkLeftPan ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
-              </IconButton>
+              </IconButton> */}
             </div>
           </div>
           <CustomTabPanel
@@ -392,7 +391,7 @@ export default function Problem() {
             <>
               <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
                 <LanguageDropDown
-                  languagestoskip={data?.data.languagestoskip ?? ([] as number[])}
+                  languagestoskip={data?.data?.languagestoskip ?? ([] as number[])}
                   label='supported language'
                   language={langauge}
                   handleChange={handleChange}
