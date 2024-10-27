@@ -34,7 +34,7 @@ export default function ProblemsSet() {
           let icon;
           if (user) {
             icon = isAccepted(info.row.original._id, user?.submissions) ? (
-              <TaskAltOutlinedIcon color="success" />
+              <TaskAltOutlinedIcon color='success' />
             ) : isRejected(info.row.original._id, user?.submissions) ? (
               <PendingOutlinedIcon color='warning' />
             ) : null;

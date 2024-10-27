@@ -73,6 +73,12 @@ export default function Problem() {
   const handleChange = (id: number) => {
     setLangauge(id);
   };
+  useEffect(() => {
+    if (user?.submissions.length) {
+      setProblemSubmissions(user?.submissions);
+    }
+  }, [user?.submissions.length]);
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['problem', problemname],
     queryFn: () => {
