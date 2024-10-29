@@ -69,3 +69,15 @@ export function isRejected(problemId: string, submissions: problemsubmission[]) 
   const userSubmissions = [...new Set(submissions.filter((s) => s.status === 'Wrong Answer').map((s) => s.problemId))];
   return userSubmissions.includes(problemId);
 }
+export const getGridColumnStyles = (
+  isPanelExpanded: boolean,
+  isOtherPanelShrunk: boolean,
+  isThisPanelShrunk: boolean
+) => {
+  if (isPanelExpanded || isOtherPanelShrunk) {
+    return '1 / -1'; // Span all columns
+  } else if (isThisPanelShrunk) {
+    return 'auto'; // Let grid handle it
+  }
+  return 'auto'; // Default case
+};

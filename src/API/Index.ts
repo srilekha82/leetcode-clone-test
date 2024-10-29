@@ -14,9 +14,9 @@ protectedapi.interceptors.response.use(
   },
   async (error: AxiosError) => {
     const originalRequest = error.config;
-    //@ts-ignore
+    // @ts-ignore
     if (originalRequest && error.response && error.response.status === 401 && !originalRequest?._retry) {
-      //@ts-ignore
+      // @ts-ignore
       originalRequest._retry = true;
       try {
         await refreshToken();

@@ -49,7 +49,7 @@ export interface updateUserType extends Omit<commonresponse, 'data'> {
   data: user;
 }
 export interface refreshTokenRes extends Omit<commonresponse, 'data'> {
-  data: {};
+  data: null;
 }
 export interface validateSessionRes extends Omit<commonresponse, 'data'> {
   data: { user: user | null; isExipred: boolean };
@@ -116,4 +116,21 @@ export interface problemsubmissionstatus {
   languageId: number;
   status: string;
   submittedAt: Date;
+}
+export enum ShrinkActionKind {
+  SHRINKLEFTPANEL = 'SHRINKLEFTPANEL',
+  SHRINKRIGHTPANEL = 'SHRINKRIGHTPANEL',
+  EXPANDLEFTPANEL = 'EXPANDLEFTPANEL',
+  EXPANDRIGHTPANEL = 'EXPANDRIGHTPANEL',
+}
+
+// An interface for our actions
+export interface ShrinkAction {
+  type: ShrinkActionKind;
+}
+
+// An interface for our state
+export interface ShrinkState {
+  shrinkrightpanel: boolean;
+  shrinkleftpanel: boolean;
 }

@@ -16,7 +16,7 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import Layout from '../../UI/Layout';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
 import LanguageDropDown from './LanguageDropDown';
@@ -24,9 +24,9 @@ import { darktheme, lighttheme, supportedLanguages, theme } from '../../../const
 import { useAuthSlice } from '../../../store/authslice/auth';
 import submitCode from '../../../services/sumbitCode';
 import getStatus from '../../../services/getSubmissionStatus';
-import transformInput, { a11yProps, getResult } from '../../../utils/helpers';
+import transformInput, { a11yProps, getGridColumnStyles, getResult } from '../../../utils/helpers';
 import CustomTabPanel from '../../UI/TabPanel';
-import { problemsubmissionstatus, submission } from '../../../utils/types';
+import { problemsubmissionstatus, ShrinkActionKind, submission } from '../../../utils/types';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { useUserSlice } from '../../../store/user';
 import SkeletonResultsLoader from '../../UI/SkeletonResultsLoader';
@@ -37,6 +37,7 @@ import SettingsOverscanOutlinedIcon from '@mui/icons-material/SettingsOverscanOu
 import CloseFullscreenOutlinedIcon from '@mui/icons-material/CloseFullscreenOutlined';
 import ChevronLeftOutlinedIcon from '@mui/icons-material/ChevronLeftOutlined';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
+import { initialShrinkState, shrinkReducer } from '../../reducers/ShrinkReducer';
 
 export default function Problem() {
   const { problemname } = useParams();
@@ -61,13 +62,13 @@ export default function Problem() {
   const [problemsubmissions, setProblemSubmissions] = useState<problemsubmissionstatus[]>(user?.submissions ?? []);
   const [isLeftPanelExpanded, toggleLeftPanelExpansion] = useReducer((state) => {
     if (state && editorRef.current) {
-      //@ts-ignore
+      // @ts-ignore
       editorRef.current.layout({});
     }
     return !state;
   }, false);
   const [isRightPanelExpanded, toggleRightPanelExpansion] = useReducer((state) => !state, false);
-
+  const [shrinkState, actiondispatcher] = useReducer(shrinkReducer, initialShrinkState);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
@@ -92,6 +93,14 @@ export default function Problem() {
       setProblemSubmissions(user?.submissions);
     }
   }, [user?.submissions.length]);
+  useLayoutEffect(() => {
+    if (!shrinkState.shrinkrightpanel) {
+      if (editorRef && editorRef.current) {
+        // @ts-ignore
+        editorRef.current.layout({}, true);
+      }
+    }
+  }, [shrinkState.shrinkrightpanel]);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['problem', problemname],
@@ -167,7 +176,7 @@ export default function Problem() {
     }
     try {
       setSubmissionStatusLoading(true);
-      //@ts-ignore
+      // @ts-ignore
       const data = await getData({ status: { description: 'Processing' } });
       console.log({ data });
       setSubmissionStatusLoading(false);
@@ -234,12 +243,12 @@ export default function Problem() {
         setCurrentTab(2);
         setProblemSubmissionLoading(true);
         const batchwiseresponse = await batchwiseSubmission(submissionbatch);
-        //@ts-ignore
+        // @ts-ignore
         const batchwiseresponsepromises = [];
         batchwiseresponse?.forEach((submission) => {
           batchwiseresponsepromises.push(getSubmission(submission.token));
         });
-        //@ts-ignore
+        // @ts-ignore
         const batchwiseresults = await Promise.all(batchwiseresponsepromises);
         setProblemSubmissionLoading(false);
         console.log(batchwiseresults);
@@ -296,16 +305,42 @@ export default function Problem() {
   return (
     <Layout className='problem-layout' showFooter={false}>
       <div
-        className={`tw-gap-2 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : ''}`}
+        className={`tw-gap-2 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : !shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? 'leftshrinked' : !shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? 'rightshrinked' : ''}`}
       >
+        {!shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? (
+          <div
+            className={`tw-flex tw-flex-col tw-justify-between tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg`}
+            style={{
+              backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
+              borderWidth: '2px',
+              borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
+            }}
+          >
+            <Tabs orientation='vertical' value={leftTab} onChange={handleLeftTabChange}>
+              <Tab label='Description' sx={{ writingMode: 'vertical-lr' }} {...a11yProps(0)}></Tab>
+              <Tab label='Submissions' sx={{ writingMode: 'vertical-lr' }} {...a11yProps(1)}></Tab>
+            </Tabs>
+            <IconButton
+              onClick={() => {
+                actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL });
+              }}
+            >
+              <ChevronRightOutlinedIcon />
+            </IconButton>
+          </div>
+        ) : null}
         <div
           className={`tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg`}
           style={{
             backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
             borderWidth: '2px',
             borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
-            display: isLeftPanelExpanded  ? 'none' : 'block',
-            gridColumn: isRightPanelExpanded  ? '1 / -1' : 'auto',
+            display: isLeftPanelExpanded || shrinkState.shrinkrightpanel ? 'none' : 'block',
+            gridColumn: getGridColumnStyles(
+              isRightPanelExpanded,
+              shrinkState.shrinkrightpanel,
+              shrinkState.shrinkleftpanel
+            ),
           }}
         >
           <div className='tw-flex tw-items-center tw-justify-between'>
@@ -317,9 +352,16 @@ export default function Problem() {
               <IconButton onClick={toggleRightPanelExpansion} size='small'>
                 {!isRightPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
               </IconButton>
-              {/* <IconButton onClick={toggleShrinkRightPan} size='small'>
-                {!shrinkRightPan ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
-              </IconButton> */}
+              <IconButton
+                onClick={() =>
+                  (!shrinkState.shrinkrightpanel
+                    ? actiondispatcher({ type: ShrinkActionKind.SHRINKRIGHTPANEL })
+                    : actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL }))
+                }
+                size='small'
+              >
+                {!shrinkState.shrinkrightpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
+              </IconButton>
             </div>
           </div>
           <CustomTabPanel value={leftTab} index={0}>
@@ -357,14 +399,37 @@ export default function Problem() {
             {problemsubmissions.length ? <ProblemSubmissions data={problemsubmissions}></ProblemSubmissions> : null}
           </CustomTabPanel>
         </div>
+        {!shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? (
+          <div
+            className={`tw-p-2 tw-border-2 tw-rounded-lg tw-h-full tw-flex tw-flex-col tw-justify-between`}
+            style={{
+              backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
+              borderWidth: '2px',
+              borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
+            }}
+          >
+            <Tabs orientation='vertical' value={currentTab} onChange={handleTabChange}>
+              <Tab sx={{ writingMode: 'vertical-lr' }} label='Code' {...a11yProps(0)}></Tab>
+              <Tab sx={{ writingMode: 'vertical-lr' }} label='Test Results' {...a11yProps(1)}></Tab>
+              <Tab sx={{ writingMode: 'vertical-lr' }} label='Output' {...a11yProps(2)}></Tab>
+            </Tabs>
+            <IconButton onClick={() => actiondispatcher({ type: ShrinkActionKind.EXPANDLEFTPANEL })}>
+              <ChevronLeftOutlinedIcon />
+            </IconButton>
+          </div>
+        ) : null}
         <div
           className={`tw-p-2 tw-border-2 tw-rounded-lg tw-h-full`}
           style={{
             backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
             borderWidth: '2px',
             borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
-            gridColumn: isLeftPanelExpanded ? '1 / -1' : 'auto',
-            display: isRightPanelExpanded  ? 'none' : 'block',
+            gridColumn: getGridColumnStyles(
+              isLeftPanelExpanded,
+              shrinkState.shrinkleftpanel,
+              shrinkState.shrinkrightpanel
+            ),
+            display: isRightPanelExpanded || shrinkState.shrinkleftpanel ? 'none' : 'block',
           }}
         >
           <div className='tw-flex tw-items-center tw-justify-between'>
@@ -377,9 +442,16 @@ export default function Problem() {
               <IconButton onClick={toggleLeftPanelExpansion} size='small'>
                 {!isLeftPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
               </IconButton>
-              {/* <IconButton onClick={toggleShrinkLeftPan} size='small'>
-                {!shrinkLeftPan ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
-              </IconButton> */}
+              <IconButton
+                onClick={() => {
+                  !shrinkState.shrinkleftpanel
+                    ? actiondispatcher({ type: ShrinkActionKind.SHRINKLEFTPANEL })
+                    : actiondispatcher({ type: ShrinkActionKind.EXPANDLEFTPANEL });
+                }}
+                size='small'
+              >
+                {!shrinkState.shrinkleftpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
+              </IconButton>
             </div>
           </div>
           <CustomTabPanel
