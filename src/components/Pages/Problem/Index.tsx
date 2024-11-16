@@ -16,7 +16,7 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
-import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import Layout from '../../UI/Layout';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
 import LanguageDropDown from './LanguageDropDown';
@@ -60,6 +60,7 @@ export default function Problem() {
   const [leftTab, setLeftTab] = useState<number>(0);
   const [problemRunStatus, setproblemRunStatus] = useState<submission[]>([]);
   const [problemsubmissions, setProblemSubmissions] = useState<problemsubmissionstatus[]>(user?.submissions ?? []);
+
   const [isLeftPanelExpanded, toggleLeftPanelExpansion] = useReducer((state) => {
     if (state && editorRef.current) {
       // @ts-ignore
@@ -93,14 +94,6 @@ export default function Problem() {
       setProblemSubmissions(user?.submissions);
     }
   }, [user?.submissions.length]);
-  useLayoutEffect(() => {
-    if (!shrinkState.shrinkrightpanel) {
-      if (editorRef && editorRef.current) {
-        // @ts-ignore
-        editorRef.current.layout({}, true);
-      }
-    }
-  }, [shrinkState.shrinkrightpanel]);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['problem', problemname],
@@ -308,12 +301,19 @@ export default function Problem() {
         className={`tw-gap-2 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : !shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? 'leftshrinked' : !shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? 'rightshrinked' : ''}`}
       >
         {!shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? (
+          //!left Sidepanel
           <div
-            className={`tw-flex tw-flex-col tw-justify-between tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg`}
+            className="tw-flex tw-flex-col tw-justify-between tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg"
             style={{
               backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
               borderWidth: '2px',
               borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
+              display: isLeftPanelExpanded && shrinkState.shrinkrightpanel ? 'none' : 'flex',
+              gridColumn: getGridColumnStyles(
+                isLeftPanelExpanded,
+                shrinkState.shrinkleftpanel,
+                shrinkState.shrinkrightpanel
+              ),
             }}
           >
             <Tabs orientation='vertical' value={leftTab} onChange={handleLeftTabChange}>
@@ -322,6 +322,8 @@ export default function Problem() {
             </Tabs>
             <IconButton
               onClick={() => {
+                //@ts-ignore
+                editorRef.current.layout(771, 436);
                 actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL });
               }}
             >
@@ -349,14 +351,20 @@ export default function Problem() {
               <Tab label='Submissions' {...a11yProps(1)}></Tab>
             </Tabs>
             <div>
-              <IconButton onClick={toggleRightPanelExpansion} size='small'>
+              <IconButton
+                onClick={() => {
+                  console.log(shrinkState);
+                  toggleRightPanelExpansion();
+                }}
+                size='small'
+              >
                 {!isRightPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
               </IconButton>
               <IconButton
                 onClick={() =>
-                  (!shrinkState.shrinkrightpanel
+                  !shrinkState.shrinkrightpanel
                     ? actiondispatcher({ type: ShrinkActionKind.SHRINKRIGHTPANEL })
-                    : actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL }))
+                    : actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL })
                 }
                 size='small'
               >
@@ -400,12 +408,19 @@ export default function Problem() {
           </CustomTabPanel>
         </div>
         {!shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? (
+          //!Right Sidepanel
           <div
             className={`tw-p-2 tw-border-2 tw-rounded-lg tw-h-full tw-flex tw-flex-col tw-justify-between`}
             style={{
               backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
               borderWidth: '2px',
               borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
+              display: isRightPanelExpanded && shrinkState.shrinkleftpanel ? 'none' : 'flex',
+              gridColumn: getGridColumnStyles(
+                isRightPanelExpanded,
+                shrinkState.shrinkrightpanel,
+                shrinkState.shrinkleftpanel
+              ),
             }}
           >
             <Tabs orientation='vertical' value={currentTab} onChange={handleTabChange}>
@@ -473,10 +488,15 @@ export default function Problem() {
                 theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
                 language={supportedLanguages[langauge].toLowerCase()}
                 value={data?.data.starterCode.find((s) => s.lang_id == langauge)?.code}
-                className={`tw-max-h-full tw-overflow-x-auto`}
-                height={'85%'}
+                className={`tw-max-h-full tw-overflow-x-auto tw-max-w-dvw`}
+                // height={'85%'}
                 onMount={(editor) => {
                   editorRef.current = editor;
+                }}
+                options={{
+                  automaticLayout: true,
+                  scrollBeyondLastLine: false,
+                  minimap: { enabled: false },
                 }}
               />
             </>

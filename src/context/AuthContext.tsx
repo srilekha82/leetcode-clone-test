@@ -5,7 +5,7 @@ import { useUserSlice } from '../store/user';
 
 export const AuthContext = createContext<authCtx>({});
 
-export const useAuthContext =  () =>{
+export const useAuthContext = () => {
   const ctx = useContext(AuthContext);
   return ctx;
 };
