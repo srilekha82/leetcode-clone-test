@@ -303,7 +303,7 @@ export default function Problem() {
         {!shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? (
           //!left Sidepanel
           <div
-            className="tw-flex tw-flex-col tw-justify-between tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg"
+            className='tw-flex tw-flex-col tw-justify-between tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg'
             style={{
               backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
               borderWidth: '2px',
@@ -317,8 +317,18 @@ export default function Problem() {
             }}
           >
             <Tabs orientation='vertical' value={leftTab} onChange={handleLeftTabChange}>
-              <Tab label='Description' sx={{ writingMode: 'vertical-lr' }} {...a11yProps(0)}></Tab>
-              <Tab label='Submissions' sx={{ writingMode: 'vertical-lr' }} {...a11yProps(1)}></Tab>
+              <Tab
+                className={colorMode === 'dark' ? '!tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
+                label='Description'
+                sx={{ writingMode: 'vertical-lr' }}
+                {...a11yProps(0)}
+              ></Tab>
+              <Tab
+                className={colorMode === 'dark' ? '!tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
+                label='Submissions'
+                sx={{ writingMode: 'vertical-lr' }}
+                {...a11yProps(1)}
+              ></Tab>
             </Tabs>
             <IconButton
               onClick={() => {
@@ -347,8 +357,8 @@ export default function Problem() {
         >
           <div className='tw-flex tw-items-center tw-justify-between'>
             <Tabs value={leftTab} onChange={handleLeftTabChange}>
-              <Tab label='Description' {...a11yProps(0)}></Tab>
-              <Tab label='Submissions' {...a11yProps(1)}></Tab>
+              <Tab className={colorMode === 'dark' ? '!tw-text-white' : ''} label='Description' {...a11yProps(0)}></Tab>
+              <Tab className={colorMode === 'dark' ? '!tw-text-white' : ''} label='Submissions' {...a11yProps(1)}></Tab>
             </Tabs>
             <div>
               <IconButton
@@ -424,9 +434,24 @@ export default function Problem() {
             }}
           >
             <Tabs orientation='vertical' value={currentTab} onChange={handleTabChange}>
-              <Tab sx={{ writingMode: 'vertical-lr' }} label='Code' {...a11yProps(0)}></Tab>
-              <Tab sx={{ writingMode: 'vertical-lr' }} label='Test Results' {...a11yProps(1)}></Tab>
-              <Tab sx={{ writingMode: 'vertical-lr' }} label='Output' {...a11yProps(2)}></Tab>
+              <Tab
+                className={colorMode === 'dark' ? 'tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
+                sx={{ writingMode: 'vertical-lr' }}
+                label='Code'
+                {...a11yProps(0)}
+              ></Tab>
+              <Tab
+                className={colorMode === 'dark' ? 'tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
+                sx={{ writingMode: 'vertical-lr' }}
+                label='Test Results'
+                {...a11yProps(1)}
+              ></Tab>
+              <Tab
+                className={colorMode === 'dark' ? 'tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
+                sx={{ writingMode: 'vertical-lr' }}
+                label='Output'
+                {...a11yProps(2)}
+              ></Tab>
             </Tabs>
             <IconButton onClick={() => actiondispatcher({ type: ShrinkActionKind.EXPANDLEFTPANEL })}>
               <ChevronLeftOutlinedIcon />
@@ -449,9 +474,9 @@ export default function Problem() {
         >
           <div className='tw-flex tw-items-center tw-justify-between'>
             <Tabs value={currentTab} onChange={handleTabChange}>
-              <Tab label='Code' {...a11yProps(0)}></Tab>
-              <Tab label='Test Results' {...a11yProps(1)}></Tab>
-              <Tab label='Output' {...a11yProps(2)}></Tab>
+              <Tab className={colorMode === 'dark' ? 'tw-text-white' : ''} label='Code' {...a11yProps(0)}></Tab>
+              <Tab className={colorMode === 'dark' ? 'tw-text-white' : ''} label='Test Results' {...a11yProps(1)}></Tab>
+              <Tab className={colorMode === 'dark' ? 'tw-text-white' : ''} label='Output' {...a11yProps(2)}></Tab>
             </Tabs>
             <div>
               <IconButton onClick={toggleLeftPanelExpansion} size='small'>
@@ -512,10 +537,15 @@ export default function Problem() {
               </div>
             ) : problemRunStatus.length ? (
               <Stack spacing={2} className='tw-h-[75dvh]'>
-                <Tabs value={submissionTab} onChange={handleSubmissionTabChange}>
+                <Tabs
+                  className={colorMode === 'dark' ? 'tw-text-white' : ''}
+                  value={submissionTab}
+                  onChange={handleSubmissionTabChange}
+                >
                   {problemRunStatus.map((s, i) => (
                     <Tab
                       key={i}
+                      className={colorMode === 'dark' ? 'tw-text-white min-w-12' : 'min-w-12'}
                       label={
                         <div className='tw-flex tw-gap-1 tw-items-center'>
                           <FiberManualRecordIcon
