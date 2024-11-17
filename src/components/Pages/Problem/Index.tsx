@@ -138,9 +138,9 @@ export default function Problem() {
   };
   useEffect(() => {
     if (user?.submissions.length) {
-      setProblemSubmissions(user?.submissions);
+      setProblemSubmissions(user?.submissions.filter((sub)=>sub.problemId===problemname?.slice(0, problemname.length - 1)));
     }
-  }, [user?.submissions.length]);
+  }, [user?.submissions.length,problemname]);
 
   const { mutateAsync } = useMutation({
     mutationKey: ['codesubmission'],

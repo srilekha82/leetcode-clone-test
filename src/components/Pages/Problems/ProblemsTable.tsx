@@ -82,7 +82,7 @@ function ProblemsTable({ data, columns }: { data: Problem[]; columns: [] }) {
         page={pageIndex}
         slotProps={{
           select: {
-            inputProps: { 'aria-label': 'rows per page' },
+            inputProps: { 'aria-label': 'Problems per page' },
             native: true,
           },
         }}
