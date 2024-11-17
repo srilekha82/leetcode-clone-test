@@ -71,7 +71,7 @@ export default function Problem() {
   const [problemInfo, setProblemInfo] = useState<ProblemType | null>(null);
   const [isErrorWithProblemInfo, setIsErrorWithProblemInfo] = useState<boolean>(false);
   const [errorInfoProblemFetch, setErrorInfoProblemFetch] = useState<Error | null>(null);
-  const [code, setCode] = useState<string>('');
+  const [code, setCode] = useState<Record<string, string>>({});
 
   useEffect(() => {
     try {
@@ -79,10 +79,15 @@ export default function Problem() {
         setIsProblemLoading(true);
         const problemResponse = await getProblem(problemname?.slice(0, problemname.length - 1) as string);
         setIsProblemLoading(false);
-
         if (problemResponse?.status === 'Success') {
           setProblemInfo(problemResponse.data);
-          setCode(problemResponse.data?.starterCode.find((s) => s.lang_id == langauge)?.code ?? '');
+          const storedCode = localStorage.getItem(`${problemname?.slice(0, problemname.length - 1)}`);
+          if (storedCode) {
+            const parsedCode = JSON.parse(storedCode);
+            setCode(parsedCode);
+          } else {
+            setCode({ [langauge]: problemResponse.data?.starterCode.find((s) => s.lang_id == langauge)?.code ?? '' });
+          }
         } else {
           throw new Error(problemResponse?.error);
         }
@@ -123,6 +128,13 @@ export default function Problem() {
   };
   const handleChange = (id: number) => {
     setLangauge(id);
+    setCode((prev) => {
+      const copy = { ...prev };
+      if (!copy[id]) {
+        copy[id] = problemInfo?.starterCode.find((s) => s.lang_id == id)?.code ?? '';
+      }
+      return copy;
+    });
   };
   useEffect(() => {
     if (user?.submissions.length) {
@@ -551,7 +563,7 @@ export default function Problem() {
               <Editor
                 theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
                 language={supportedLanguages[langauge].toLowerCase()}
-                value={code}
+                value={code[langauge]}
                 className={`tw-max-h-full tw-overflow-x-auto tw-max-w-dvw`}
                 onMount={(editor) => {
                   editorRef.current = editor;
@@ -562,8 +574,23 @@ export default function Problem() {
                   minimap: { enabled: false },
                 }}
                 onChange={(changedcode) => {
+                  const storedCode = localStorage.getItem(`${problemname?.slice(0, problemname.length - 1)}`);
+                  let cachecode = JSON.parse(storedCode ?? `{}`);
                   if (changedcode) {
-                    setCode(changedcode);
+                    localStorage.setItem(
+                      `${problemname?.slice(0, problemname.length - 1)}`,
+                      JSON.stringify({
+                        ...cachecode,
+                        [langauge]: changedcode,
+                      })
+                    );
+                    setCode((prev) => {
+                      const copy = { ...prev };
+                      if (copy[langauge]) {
+                        copy[langauge] = changedcode;
+                      }
+                      return copy;
+                    });
                   }
                 }}
               />
