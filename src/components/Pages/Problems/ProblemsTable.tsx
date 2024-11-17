@@ -1,10 +1,4 @@
-import {
-  useReactTable,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from '@tanstack/react-table';
+import { flexRender } from '@tanstack/react-table';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -17,16 +11,21 @@ import { Problem } from '../../../utils/types';
 import TablePaginationActions from './ProblemTableActions';
 import { styled } from '@mui/material/styles';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
-import { Container } from '@mui/material';
+import { Container, SelectChangeEvent } from '@mui/material';
+import { Table as TableType } from '@tanstack/react-table';
+import DifficultyFilter from './DifficultyFilter';
 
-function ProblemsTable({ data, columns }: { data: Problem[]; columns: [] }) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
+function ProblemsTable({
+  data,
+  table,
+  handleDifficultChange,
+  statusFilter,
+}: {
+  data: Problem[];
+  table: TableType<Problem>;
+  handleDifficultChange: (event: SelectChangeEvent) => void;
+  statusFilter: string;
+}) {
   const { colorMode } = usethemeUtils();
 
   const StyledTableRow = styled(TableRow)(() => ({
@@ -42,6 +41,7 @@ function ProblemsTable({ data, columns }: { data: Problem[]; columns: [] }) {
 
   return (
     <Container maxWidth='lg' sx={{ maxHeight: '75dvh', overflowY: 'auto', scrollbarWidth: 'thin' }}>
+      <DifficultyFilter value={statusFilter} handleChange={handleDifficultChange}></DifficultyFilter>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650, maxHeight: '75dvh', overflowY: 'auto' }} aria-label='simple table'>
           <TableHead>

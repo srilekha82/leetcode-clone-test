@@ -4,7 +4,14 @@ import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useMemo, useState } from 'react';
 import { Problem } from '../../../utils/types';
-import { createColumnHelper } from '@tanstack/react-table';
+import {
+  createColumnHelper,
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  ColumnFiltersState,
+} from '@tanstack/react-table';
 import ProblemsTable from './ProblemsTable';
 import { Link } from 'react-router-dom';
 import { difficultyColors } from '../../../constants/Index';
@@ -12,13 +19,16 @@ import { isAccepted, isRejected } from '../../../utils/helpers';
 import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import { useUserSlice } from '../../../store/user';
 import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
+import { SelectChangeEvent } from '@mui/material';
 
 export default function ProblemsSet() {
   const [open, setOpen] = useState<boolean>(true);
+  const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const handleClose = () => {
     setOpen(false);
   };
   const columnHelper = createColumnHelper<Problem>();
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['problems'],
     queryFn: getProblems,
@@ -55,14 +65,42 @@ export default function ProblemsSet() {
         },
       }),
       columnHelper.accessor((row) => row.difficulty, {
-        id: 'Difficulty',
+        id: 'difficulty',
         cell: (info) => {
           return <div style={{ color: difficultyColors[info.getValue()] }}>{info.getValue()}</div>;
         },
+        filterFn: 'statusFilter' as any,
       }),
     ],
     [user]
   );
+
+  const table = useReactTable({
+    data: data?.data ?? [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    globalFilterFn: 'includesStringSensitive',
+    state: {
+      columnFilters,
+    },
+    filterFns: {
+      statusFilter: (row, columnId, filterValue) => {
+        if (difficultyFilter === 'all') {
+          return row;
+        }
+        console.log(row.original[columnId], difficultyFilter);
+        const value = filterValue ? row.original[columnId] === difficultyFilter : row.original[columnId];
+        return value;
+      },
+    },
+  });
+  const handleChange = (event: SelectChangeEvent) => {
+    setDifficultyFilter(event.target.value);
+    table.getColumn('difficulty')?.setFilterValue(event.target.value);
+  };
   if (isLoading) {
     return (
       <>
@@ -76,5 +114,15 @@ export default function ProblemsSet() {
   if (isError) {
     return <p>{error.message}</p>;
   }
-  return <ProblemsTable columns={columns as []} data={data?.data as Problem[]} />;
+
+  return (
+    <>
+      <ProblemsTable
+        statusFilter={difficultyFilter}
+        handleDifficultChange={handleChange}
+        table={table}
+        data={data?.data as Problem[]}
+      />
+    </>
+  );
 }

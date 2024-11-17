@@ -138,9 +138,11 @@ export default function Problem() {
   };
   useEffect(() => {
     if (user?.submissions.length) {
-      setProblemSubmissions(user?.submissions.filter((sub)=>sub.problemId===problemname?.slice(0, problemname.length - 1)));
+      setProblemSubmissions(
+        user?.submissions.filter((sub) => sub.problemId === problemname?.slice(0, problemname.length - 1))
+      );
     }
-  }, [user?.submissions.length,problemname]);
+  }, [user?.submissions.length, problemname]);
 
   const { mutateAsync } = useMutation({
     mutationKey: ['codesubmission'],
@@ -673,7 +675,9 @@ export default function Problem() {
                   : null}
               </Stack>
             ) : (
-              <SkeletonResultsLoader />
+              <div className='tw-h-[75dvh]'>
+                <SkeletonResultsLoader />
+              </div>
             )}
           </CustomTabPanel>
           <CustomTabPanel value={currentTab} index={2}>
