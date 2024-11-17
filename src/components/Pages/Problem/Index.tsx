@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router';
 import { Editor, Monaco } from '@monaco-editor/react';
 import * as monaco from '@monaco-editor/react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import getProblem from '../../../services/getProblem';
 import {
   Alert,
@@ -26,7 +26,13 @@ import submitCode from '../../../services/sumbitCode';
 import getStatus from '../../../services/getSubmissionStatus';
 import transformInput, { a11yProps, getGridColumnStyles, getResult } from '../../../utils/helpers';
 import CustomTabPanel from '../../UI/TabPanel';
-import { problemsubmissionstatus, ShrinkActionKind, submission } from '../../../utils/types';
+import {
+  Problem as ProblemType,
+  problemsubmissionstatus,
+  ShrinkActionKind,
+  submission,
+  user,
+} from '../../../utils/types';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { useUserSlice } from '../../../store/user';
 import SkeletonResultsLoader from '../../UI/SkeletonResultsLoader';
@@ -42,15 +48,16 @@ import { initialShrinkState, shrinkReducer } from '../../reducers/ShrinkReducer'
 export default function Problem() {
   const { problemname } = useParams();
   const editorRef = useRef(null);
+  const user = useUserSlice((state) => state.user);
+  const setUser = useUserSlice((state) => state.setUser);
+  const { colorMode } = usethemeUtils();
   const [open, setOpen] = useState<boolean>(true);
   const [langauge, setLangauge] = useState<number>(93);
-  const { colorMode } = usethemeUtils();
   const isLogedIn = useAuthSlice((state) => state.isLogedIn);
   const [submissionId, setSubmissionId] = useState<string>('');
   const [currentTab, setCurrentTab] = useState<number>(0);
   const [isSumbitted, setIsSumbitted] = useState<boolean>(false);
   const [submissionTab, setSubmissionTab] = useState<number>(0);
-  const user = useUserSlice((state) => state.user);
   const [submissionStatusLoading, setSubmissionStatusLoading] = useState<boolean>(false);
   const [submissionStatusError, setSubmissionStatusError] = useState<boolean>(false);
   const [submissionStatusInprocess, setSubmissionStatusInProcess] = useState<boolean>(false);
@@ -60,6 +67,34 @@ export default function Problem() {
   const [leftTab, setLeftTab] = useState<number>(0);
   const [problemRunStatus, setproblemRunStatus] = useState<submission[]>([]);
   const [problemsubmissions, setProblemSubmissions] = useState<problemsubmissionstatus[]>(user?.submissions ?? []);
+  const [isProblemLoading, setIsProblemLoading] = useState<boolean>(false);
+  const [problemInfo, setProblemInfo] = useState<ProblemType | null>(null);
+  const [isErrorWithProblemInfo, setIsErrorWithProblemInfo] = useState<boolean>(false);
+  const [errorInfoProblemFetch, setErrorInfoProblemFetch] = useState<Error | null>(null);
+  const [code, setCode] = useState<string>('');
+
+  useEffect(() => {
+    try {
+      (async () => {
+        setIsProblemLoading(true);
+        const problemResponse = await getProblem(problemname?.slice(0, problemname.length - 1) as string);
+        setIsProblemLoading(false);
+
+        if (problemResponse?.status === 'Success') {
+          setProblemInfo(problemResponse.data);
+          setCode(problemResponse.data?.starterCode.find((s) => s.lang_id == langauge)?.code ?? '');
+        } else {
+          throw new Error(problemResponse?.error);
+        }
+      })();
+    } catch (error) {
+      setIsProblemLoading(false);
+      setIsErrorWithProblemInfo(true);
+      if (error instanceof Error) {
+        setErrorInfoProblemFetch(error);
+      }
+    }
+  }, [problemname]);
 
   const [isLeftPanelExpanded, toggleLeftPanelExpansion] = useReducer((state) => {
     if (state && editorRef.current) {
@@ -95,13 +130,6 @@ export default function Problem() {
     }
   }, [user?.submissions.length]);
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['problem', problemname],
-    queryFn: () => {
-      return getProblem(problemname?.slice(0, problemname.length - 1) as string);
-    },
-    refetchOnWindowFocus: false,
-  });
   const { mutateAsync } = useMutation({
     mutationKey: ['codesubmission'],
     mutationFn: submitCode,
@@ -121,7 +149,7 @@ export default function Problem() {
     };
   }, [colorMode]);
 
-  if (isLoading) {
+  if (isProblemLoading) {
     return (
       <>
         <Backdrop
@@ -135,11 +163,11 @@ export default function Problem() {
     );
   }
 
-  if (isError) {
+  if (isErrorWithProblemInfo) {
     return (
       <Layout>
         <Alert className='tw-mx-auto' severity='error'>
-          {error.message}
+          {errorInfoProblemFetch?.message}
         </Alert>
       </Layout>
     );
@@ -187,16 +215,16 @@ export default function Problem() {
       navigate('/signin');
     }
 
-    if (editorRef.current && data) {
-      const output = data.data.sampleOutput;
+    if (editorRef.current && problemInfo) {
+      const output = problemInfo?.sampleOutput ?? '';
       // @ts-ignore
-      const code = `${data.data.imports.find((s) => s.lang_id == langauge)?.code} \n${editorRef.current.getValue()} \n${data?.data.systemCode.find((s) => s.lang_id == langauge)?.code}`;
+      const code = `${problemInfo.imports.find((s) => s.lang_id == langauge)?.code} \n${editorRef.current.getValue()} \n${problemInfo?.systemCode.find((s) => s.lang_id == langauge)?.code}`;
       try {
         const input = transformInput(
-          data?.data.sampleInput as string,
-          data?.data.metadata.judge_input_template as string,
-          data?.data.metadata.variables_names as Record<string, string>,
-          data?.data.metadata.variables_types as Record<string, string>
+          problemInfo?.sampleInput as string,
+          problemInfo?.metadata.judge_input_template as string,
+          problemInfo?.metadata.variables_names as Record<string, string>,
+          problemInfo?.metadata.variables_types as Record<string, string>
         );
         setIsSumbitted(true);
         setCurrentTab(1);
@@ -214,11 +242,11 @@ export default function Problem() {
     if (!isLogedIn) {
       navigate('/signin');
     }
-    if (editorRef.current && data) {
+    if (editorRef.current && problemInfo) {
       const submissionbatch = [];
-      const testcases = data.data.testCases;
+      const testcases = problemInfo?.testCases;
       // @ts-ignore
-      const code = `${data.data.imports.find((s) => s.lang_id == langauge)?.code} \n ${editorRef.current.getValue()} \n ${data?.data.systemCode.find((s) => s.lang_id == langauge)?.code}`;
+      const code = `${problemInfo.imports.find((s) => s.lang_id == langauge)?.code} \n ${editorRef.current.getValue()} \n ${problemInfo?.systemCode.find((s) => s.lang_id == langauge)?.code}`;
       if (testcases?.length) {
         for (let index = 0; index < testcases?.length; index++) {
           if (testcases) {
@@ -265,6 +293,19 @@ export default function Problem() {
         });
         console.log(submissionupdateResponse);
         setProblemSubmissions((prev) => [...prev, updatesubmissionbody]);
+        setUser({
+          ...(user as user),
+          submissions: [
+            ...(user?.submissions ?? []),
+            {
+              problemId: problemname?.slice(0, problemname.length - 1) as string,
+              submissionId: submissionupdateResponse?.data._id as string,
+              languageId: langauge,
+              status: status ? 'Accepted' : 'Wrong Answer',
+              submittedAt: new Date(),
+            },
+          ],
+        });
       } catch (error) {
         setProblemSubmissionLoading(false);
         setProblemSubmissionStatus('Rejected');
@@ -363,7 +404,6 @@ export default function Problem() {
             <div>
               <IconButton
                 onClick={() => {
-                  console.log(shrinkState);
                   toggleRightPanelExpansion();
                 }}
                 size='small'
@@ -386,29 +426,33 @@ export default function Problem() {
             <Stack spacing={8} className='tw-p-2'>
               <Box>
                 <Typography variant='h5'>
-                  {problemname?.slice(problemname.length - 1)}. {data?.data.title}
+                  {problemname?.slice(problemname.length - 1)}. {problemInfo?.title}
                 </Typography>
                 <div className='tw-mt-2'>
                   <Chip
-                    label={data?.data.difficulty}
+                    label={problemInfo?.difficulty}
                     color={
-                      data?.data.difficulty === 'easy' ? 'info' : data?.data.difficulty === 'hard' ? 'error' : 'warning'
+                      problemInfo?.difficulty === 'easy'
+                        ? 'info'
+                        : problemInfo?.difficulty === 'hard'
+                          ? 'error'
+                          : 'warning'
                     }
                   />
                 </div>
                 <div className='tw-mt-2'>
-                  <Typography variant='subtitle1'>{data?.data.description}</Typography>
+                  <Typography variant='subtitle1'>{problemInfo?.description}</Typography>
                 </div>
               </Box>
               <Box>
                 <Typography variant='h5'>Examples</Typography>
                 <div className='tw-flex tw-gap-2 tw-items-center tw-justify-start'>
                   <Typography variant='h6'>Input :</Typography>
-                  <Typography variant='body2'>{data?.data.sampleInput}</Typography>
+                  <Typography variant='body2'>{problemInfo?.sampleInput}</Typography>
                 </div>
                 <div className='tw-flex tw-gap-2 tw-items-center tw-justify-start'>
                   <Typography variant='h6'>Output:</Typography>
-                  <Typography variant='body2'>{data?.data.sampleOutput}</Typography>
+                  <Typography variant='body2'>{problemInfo?.sampleOutput}</Typography>
                 </div>
               </Box>
             </Stack>
@@ -494,16 +538,11 @@ export default function Problem() {
               </IconButton>
             </div>
           </div>
-          <CustomTabPanel
-            innerDivClassName='tw-h-full'
-            wrapperClassName='tw-max-h-[75dvh] tw-h-full'
-            value={currentTab}
-            index={0}
-          >
-            <>
+          <CustomTabPanel innerDivClassName='tw-h-full' value={currentTab} index={0}>
+            <div className='tw-h-[73dvh]'>
               <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
                 <LanguageDropDown
-                  languagestoskip={data?.data?.languagestoskip ?? ([] as number[])}
+                  languagestoskip={problemInfo?.languagestoskip ?? ([] as number[])}
                   label='supported language'
                   language={langauge}
                   handleChange={handleChange}
@@ -512,9 +551,8 @@ export default function Problem() {
               <Editor
                 theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
                 language={supportedLanguages[langauge].toLowerCase()}
-                value={data?.data.starterCode.find((s) => s.lang_id == langauge)?.code}
+                value={code}
                 className={`tw-max-h-full tw-overflow-x-auto tw-max-w-dvw`}
-                // height={'85%'}
                 onMount={(editor) => {
                   editorRef.current = editor;
                 }}
@@ -523,16 +561,25 @@ export default function Problem() {
                   scrollBeyondLastLine: false,
                   minimap: { enabled: false },
                 }}
+                onChange={(changedcode) => {
+                  if (changedcode) {
+                    setCode(changedcode);
+                  }
+                }}
               />
-            </>
+            </div>
           </CustomTabPanel>
           <CustomTabPanel value={currentTab} index={1}>
             {(submissionStatusLoading && isSumbitted) || submissionStatusInprocess ? (
               <Stack className='tw-h-[75dvh]' spacing={2}>
                 <SkeletonResultsLoader />
               </Stack>
+            ) : !submissionStatusLoading && submissionStatusError ? (
+              <div className='tw-h-[75dvh]' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant='body2'>Some Error Occurred Please Try Again</Typography>
+              </div>
             ) : !isSumbitted && !problemRunStatus.length ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '75dvh' }}>
+              <div className='tw-h-[75dvh]' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography variant='body2'>You must run your code first</Typography>
               </div>
             ) : problemRunStatus.length ? (
@@ -559,13 +606,13 @@ export default function Problem() {
                     ></Tab>
                   ))}
                 </Tabs>
-                {data?.data.metadata.variables_names != undefined
+                {problemInfo?.metadata.variables_names != undefined
                   ? problemRunStatus.map((s, i) => {
                       const inputvalues = s.stdin.split('\n');
                       return (
                         <CustomTabPanel index={i} key={`language${s.language_id}`} value={submissionTab}>
                           <Stack>
-                            {Object.values(data?.data.metadata.variables_names).map((l, j) => (
+                            {Object.values(problemInfo?.metadata.variables_names).map((l, j) => (
                               <Stack key={`input${j}`}>
                                 <Typography className='tw-p-2' color='primary'>
                                   {l} =
@@ -614,7 +661,7 @@ export default function Problem() {
                     Accepted
                   </Typography>
                   <Typography>
-                    Passed Test Cases {problemsuccessCount}/{data?.data.testCases.length}
+                    Passed Test Cases {problemsuccessCount}/{problemInfo?.testCases.length}
                   </Typography>
                 </div>
                 <div>
@@ -628,7 +675,7 @@ export default function Problem() {
                     Rejected
                   </Typography>
                   <Typography>
-                    Passed Test Cases {problemsuccessCount}/{data?.data.testCases.length}
+                    Passed Test Cases {problemsuccessCount}/{problemInfo?.testCases.length}
                   </Typography>
                 </div>
                 <div>
