@@ -1,6 +1,6 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
-export default function DifficultyFilter({
+export default function StatusFilter({
   value,
   handleChange,
 }: {
@@ -9,24 +9,18 @@ export default function DifficultyFilter({
 }) {
   return (
     <FormControl sx={{ m: 1, minWidth: 120 }} size='small'>
-      <InputLabel id='demo-select-small-label'>Difficulty</InputLabel>
+      <InputLabel id='status-select-small-label'>Status</InputLabel>
       <Select
-        labelId='demo-select-small-label'
+        labelId='status-select-small-label'
         id='demo-select-small'
         value={value}
-        label='Difficulty'
+        label='Status'
         onChange={handleChange}
       >
         <MenuItem value='all'>All</MenuItem>
-        <MenuItem color='green' value={'easy'}>
-          Easy
-        </MenuItem>
-        <MenuItem color='rgb(255, 184, 0)' value={'medium'}>
-          Medium
-        </MenuItem>
-        <MenuItem color='red' value={'hard'}>
-          Hard
-        </MenuItem>
+        <MenuItem value='todo'>Todo</MenuItem>
+        <MenuItem value='solved'>Solved</MenuItem>
+        <MenuItem value='attempted'>Attempted</MenuItem>
       </Select>
     </FormControl>
   );

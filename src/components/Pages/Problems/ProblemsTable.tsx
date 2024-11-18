@@ -14,17 +14,22 @@ import { usethemeUtils } from '../../../context/ThemeWrapper';
 import { Container, SelectChangeEvent } from '@mui/material';
 import { Table as TableType } from '@tanstack/react-table';
 import DifficultyFilter from './DifficultyFilter';
+import StatusFilter from './StatusFilter';
 
 function ProblemsTable({
   data,
   table,
   handleDifficultChange,
+  difficultyFilter,
   statusFilter,
+  handleStatusChange,
 }: {
   data: Problem[];
   table: TableType<Problem>;
   handleDifficultChange: (event: SelectChangeEvent) => void;
+  difficultyFilter: string;
   statusFilter: string;
+  handleStatusChange: (event: SelectChangeEvent) => void;
 }) {
   const { colorMode } = usethemeUtils();
 
@@ -41,7 +46,10 @@ function ProblemsTable({
 
   return (
     <Container maxWidth='lg' sx={{ maxHeight: '75dvh', overflowY: 'auto', scrollbarWidth: 'thin' }}>
-      <DifficultyFilter value={statusFilter} handleChange={handleDifficultChange}></DifficultyFilter>
+      <div className='tw-flex'>
+        <DifficultyFilter value={difficultyFilter} handleChange={handleDifficultChange}></DifficultyFilter>
+        <StatusFilter value={statusFilter} handleChange={handleStatusChange}></StatusFilter>
+      </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650, maxHeight: '75dvh', overflowY: 'auto' }} aria-label='simple table'>
           <TableHead>

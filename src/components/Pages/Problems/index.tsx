@@ -24,6 +24,8 @@ import { SelectChangeEvent } from '@mui/material';
 export default function ProblemsSet() {
   const [open, setOpen] = useState<boolean>(true);
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -39,7 +41,7 @@ export default function ProblemsSet() {
   const columns = useMemo(
     () => [
       columnHelper.accessor((row) => row.status, {
-        id: 'Status',
+        id: 'status',
         cell: (info) => {
           let icon;
           if (user) {
@@ -53,6 +55,7 @@ export default function ProblemsSet() {
           }
           return <div> {icon}</div>;
         },
+        filterFn: 'statusFilter' as any,
       }),
       columnHelper.accessor((row) => row.title, {
         id: 'Title',
@@ -69,7 +72,7 @@ export default function ProblemsSet() {
         cell: (info) => {
           return <div style={{ color: difficultyColors[info.getValue()] }}>{info.getValue()}</div>;
         },
-        filterFn: 'statusFilter' as any,
+        filterFn: 'difficultyFilter' as any,
       }),
     ],
     [user]
@@ -87,18 +90,40 @@ export default function ProblemsSet() {
       columnFilters,
     },
     filterFns: {
-      statusFilter: (row, columnId, filterValue) => {
-        if (difficultyFilter === 'all') {
+      difficultyFilter: (row, columnId, filterValue) => {
+        if (filterValue === 'all') {
           return row;
         }
-        const value = filterValue ? row.original[columnId] === difficultyFilter : row.original[columnId];
+        const value = filterValue ? row.original[columnId] === filterValue : row.original[columnId];
         return value;
+      },
+      statusFilter: (row, _columnId, filterValue) => {
+        console.log(row.original._id, filterValue);
+        const acceptedProblems = [
+          ...new Set(user?.submissions.filter((s) => s.status === 'Accepted').map((s) => s.problemId)),
+        ];
+        const rejectedProblems = [
+          ...new Set(user?.submissions.filter((s) => s.status === 'Wrong Answer').map((s) => s.problemId)),
+        ];
+        const onlyRejectProblems = rejectedProblems.filter((id) => !acceptedProblems.includes(id));
+        if (filterValue === 'solved') {
+          return acceptedProblems?.includes(row.original._id);
+        } else if (filterValue === 'attempted') {
+          return onlyRejectProblems?.includes(row.original._id);
+        } else if (filterValue === 'todo') {
+          return !onlyRejectProblems?.includes(row.original._id) && !acceptedProblems.includes(row.original._id);
+        }
+        return true;
       },
     },
   });
-  const handleChange = (event: SelectChangeEvent) => {
+  const handleDifficultyChange = (event: SelectChangeEvent) => {
     setDifficultyFilter(event.target.value);
     table.getColumn('difficulty')?.setFilterValue(event.target.value);
+  };
+  const handleStatusChange = (event: SelectChangeEvent) => {
+    setStatusFilter(event.target.value);
+    table.getColumn('status')?.setFilterValue(event.target.value);
   };
   if (isLoading) {
     return (
@@ -117,8 +142,10 @@ export default function ProblemsSet() {
   return (
     <>
       <ProblemsTable
-        statusFilter={difficultyFilter}
-        handleDifficultChange={handleChange}
+        handleStatusChange={handleStatusChange}
+        difficultyFilter={difficultyFilter}
+        statusFilter={statusFilter}
+        handleDifficultChange={handleDifficultyChange}
         table={table}
         data={data?.data as Problem[]}
       />
