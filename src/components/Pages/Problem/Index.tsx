@@ -213,7 +213,6 @@ export default function Problem() {
       setSubmissionStatusLoading(true);
       // @ts-ignore
       const data = await getData({ status: { description: 'Processing' } });
-      console.log({ data });
       setSubmissionStatusLoading(false);
       setproblemRunStatus([data as submission]);
       return data;
@@ -244,8 +243,7 @@ export default function Problem() {
         setCurrentTab(1);
         const response = await mutateAsync({ code, expected_output: output, input, language_id: langauge });
         setSubmissionId(response?.data.token);
-        const submissionResponse = await getSubmission(response?.data.token);
-        console.log(submissionResponse);
+        await getSubmission(response?.data.token);
       } catch (error) {
         console.log(error);
       }
@@ -286,7 +284,6 @@ export default function Problem() {
         // @ts-ignore
         const batchwiseresults = await Promise.all(batchwiseresponsepromises);
         setProblemSubmissionLoading(false);
-        console.log(batchwiseresults);
         const { status, successcount } = getResult(batchwiseresults);
         setSuccessCount(successcount);
         if (status) {
@@ -305,7 +302,6 @@ export default function Problem() {
           id: user?._id as string,
           newsubmission: updatesubmissionbody,
         });
-        console.log(submissionupdateResponse);
         setProblemSubmissions((prev) => [...prev, updatesubmissionbody]);
         setUser({
           ...(user as user),
@@ -323,7 +319,7 @@ export default function Problem() {
       } catch (error) {
         setProblemSubmissionLoading(false);
         setProblemSubmissionStatus('Rejected');
-        const submissionupdateResponse = await updateSubmitMutateAsync({
+        await updateSubmitMutateAsync({
           id: user?._id as string,
           newsubmission: {
             problemId: problemname?.slice(0, problemname.length - 1) as string,
@@ -343,8 +339,6 @@ export default function Problem() {
             submittedAt: new Date(),
           },
         ]);
-
-        console.log(submissionupdateResponse);
         console.log(error);
       }
     }
@@ -356,7 +350,7 @@ export default function Problem() {
         className={`tw-gap-2 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : !shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? 'leftshrinked' : !shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? 'rightshrinked' : ''}`}
       >
         {!shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? (
-          //!left Sidepanel
+          // !left Sidepanel
           <div
             className='tw-flex tw-flex-col tw-justify-between tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg'
             style={{
@@ -387,7 +381,7 @@ export default function Problem() {
             </Tabs>
             <IconButton
               onClick={() => {
-                //@ts-ignore
+                // @ts-ignore
                 editorRef.current.layout(771, 436);
                 actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL });
               }}
@@ -425,11 +419,13 @@ export default function Problem() {
                 {!isRightPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
               </IconButton>
               <IconButton
-                onClick={() =>
-                  !shrinkState.shrinkrightpanel
-                    ? actiondispatcher({ type: ShrinkActionKind.SHRINKRIGHTPANEL })
-                    : actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL })
-                }
+                onClick={() => {
+                  if (!shrinkState.shrinkrightpanel) {
+                    actiondispatcher({ type: ShrinkActionKind.SHRINKRIGHTPANEL });
+                  } else {
+                    actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL });
+                  }
+                }}
                 size='small'
               >
                 {!shrinkState.shrinkrightpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
@@ -476,7 +472,7 @@ export default function Problem() {
           </CustomTabPanel>
         </div>
         {!shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? (
-          //!Right Sidepanel
+          // !Right Sidepanel
           <div
             className={`tw-p-2 tw-border-2 tw-rounded-lg tw-h-full tw-flex tw-flex-col tw-justify-between`}
             style={{

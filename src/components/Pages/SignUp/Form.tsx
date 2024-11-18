@@ -47,7 +47,7 @@ export default function SignUpForm() {
         email,
         password,
         favoriteProgrammingLanguage: supportedLanguages[favoriteProgrammingLanguage],
-        role: ['user'],
+        roles: ['user'],
       });
       console.log({ response });
     } catch (error) {
@@ -136,6 +136,7 @@ export default function SignUpForm() {
           label='Favorite Language'
           handleChange={handleChange}
           language={favoriteProgrammingLanguage}
+          languagestoskip={[]}
         />
       </FormControl>
       <Button color='warning' variant='contained' onClick={handleSubmit} type='submit'>

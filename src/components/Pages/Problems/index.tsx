@@ -91,7 +91,6 @@ export default function ProblemsSet() {
         if (difficultyFilter === 'all') {
           return row;
         }
-        console.log(row.original[columnId], difficultyFilter);
         const value = filterValue ? row.original[columnId] === difficultyFilter : row.original[columnId];
         return value;
       },
