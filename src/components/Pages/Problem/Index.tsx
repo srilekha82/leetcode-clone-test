@@ -347,8 +347,13 @@ export default function Problem() {
   return (
     <Layout className='problem-layout' showFooter={false}>
       <div
-        className={`tw-gap-2 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : !shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? 'leftshrinked' : !shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? 'rightshrinked' : ''}`}
+        className={`tw-gap-0.5 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : !shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? 'leftshrinked' : !shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? 'rightshrinked' : ''}`}
       >
+        {!shrinkState.shrinkleftpanel &&
+          !shrinkState.shrinkrightpanel &&
+          !isLeftPanelExpanded &&
+          !isRightPanelExpanded && <div className='problem-resizer'></div>}
+
         {!shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? (
           // !left Sidepanel
           <div
@@ -418,18 +423,20 @@ export default function Problem() {
               >
                 {!isRightPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
               </IconButton>
-              <IconButton
-                onClick={() => {
-                  if (!shrinkState.shrinkrightpanel) {
-                    actiondispatcher({ type: ShrinkActionKind.SHRINKRIGHTPANEL });
-                  } else {
-                    actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL });
-                  }
-                }}
-                size='small'
-              >
-                {!shrinkState.shrinkrightpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
-              </IconButton>
+              {!isRightPanelExpanded && (
+                <IconButton
+                  onClick={() => {
+                    if (!shrinkState.shrinkrightpanel) {
+                      actiondispatcher({ type: ShrinkActionKind.SHRINKRIGHTPANEL });
+                    } else {
+                      actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL });
+                    }
+                  }}
+                  size='small'
+                >
+                  {!shrinkState.shrinkrightpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
+                </IconButton>
+              )}
             </div>
           </div>
           <CustomTabPanel value={leftTab} index={0}>
@@ -512,8 +519,10 @@ export default function Problem() {
             </IconButton>
           </div>
         ) : null}
+
+        {/* //!second section */}
         <div
-          className={`tw-p-2 tw-border-2 tw-rounded-lg tw-h-full`}
+          className={`tw-p-2 tw-border-2 tw-rounded-lg tw-h-full tw-order-3`}
           style={{
             backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
             borderWidth: '2px',
@@ -536,18 +545,21 @@ export default function Problem() {
               <IconButton onClick={toggleLeftPanelExpansion} size='small'>
                 {!isLeftPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
               </IconButton>
-              <IconButton
-                onClick={() => {
-                  !shrinkState.shrinkleftpanel
-                    ? actiondispatcher({ type: ShrinkActionKind.SHRINKLEFTPANEL })
-                    : actiondispatcher({ type: ShrinkActionKind.EXPANDLEFTPANEL });
-                }}
-                size='small'
-              >
-                {!shrinkState.shrinkleftpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
-              </IconButton>
+              {!isLeftPanelExpanded && (
+                <IconButton
+                  onClick={() => {
+                    !shrinkState.shrinkleftpanel
+                      ? actiondispatcher({ type: ShrinkActionKind.SHRINKLEFTPANEL })
+                      : actiondispatcher({ type: ShrinkActionKind.EXPANDLEFTPANEL });
+                  }}
+                  size='small'
+                >
+                  {!shrinkState.shrinkleftpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
+                </IconButton>
+              )}
             </div>
           </div>
+
           <CustomTabPanel innerDivClassName='tw-h-full' value={currentTab} index={0}>
             <div className='tw-h-[73dvh]'>
               <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
@@ -676,6 +688,7 @@ export default function Problem() {
               </div>
             )}
           </CustomTabPanel>
+
           <CustomTabPanel value={currentTab} index={2}>
             {problemSubmissionLoading ? (
               <Stack className='tw-h-[75dvh]' spacing={2}>
