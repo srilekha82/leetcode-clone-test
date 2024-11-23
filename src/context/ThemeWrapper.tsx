@@ -29,6 +29,10 @@ const ThemeWrapper: FC<contextWrapperProps> = ({ children }) => {
       background: {
         default: mode === 'light' ? '#ECECEC' : '#1f2125',
       },
+      common: {
+        white: '#ffffff',
+        black: '#000000',
+      },
     },
     typography: {
       button: {

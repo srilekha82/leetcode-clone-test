@@ -134,3 +134,5 @@ export interface ShrinkState {
   shrinkrightpanel: boolean;
   shrinkleftpanel: boolean;
 }
+
+export interface SavedProblems extends Pick<Problem, '_id' | 'title' | 'difficulty'> {}

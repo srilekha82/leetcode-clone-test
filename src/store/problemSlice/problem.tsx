@@ -1,8 +1,9 @@
 import { create } from 'zustand';
+import { SavedProblems } from '../../utils/types';
 
 interface ProblemSlice {
-  problems: string[];
-  setProblems: (problems: string[]) => void;
+  problems: SavedProblems[];
+  setProblems: (problems: SavedProblems[]) => void;
 }
 
 export const useProblemSlice = create<ProblemSlice>()((set) => ({

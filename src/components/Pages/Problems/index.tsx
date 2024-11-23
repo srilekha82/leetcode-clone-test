@@ -19,7 +19,7 @@ import { isAccepted, isRejected } from '../../../utils/helpers';
 import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import { useUserSlice } from '../../../store/user';
 import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
-import { SelectChangeEvent } from '@mui/material';
+import { capitalize, SelectChangeEvent } from '@mui/material';
 
 export default function ProblemsSet() {
   const [open, setOpen] = useState<boolean>(true);
@@ -41,7 +41,7 @@ export default function ProblemsSet() {
   const columns = useMemo(
     () => [
       columnHelper.accessor((row) => row.status, {
-        id: 'status',
+        id: 'Status',
         cell: (info) => {
           let icon;
           if (user) {
@@ -68,9 +68,9 @@ export default function ProblemsSet() {
         },
       }),
       columnHelper.accessor((row) => row.difficulty, {
-        id: 'difficulty',
+        id: 'Difficulty',
         cell: (info) => {
-          return <div style={{ color: difficultyColors[info.getValue()] }}>{info.getValue()}</div>;
+          return <div style={{ color: difficultyColors[info.getValue()] }}>{capitalize(info.getValue())}</div>;
         },
         filterFn: 'difficultyFilter' as any,
       }),
@@ -85,7 +85,6 @@ export default function ProblemsSet() {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: setColumnFilters,
-    globalFilterFn: 'includesStringSensitive',
     state: {
       columnFilters,
     },
@@ -119,11 +118,11 @@ export default function ProblemsSet() {
   });
   const handleDifficultyChange = (event: SelectChangeEvent) => {
     setDifficultyFilter(event.target.value);
-    table.getColumn('difficulty')?.setFilterValue(event.target.value);
+    table.getColumn('Difficulty')?.setFilterValue(event.target.value);
   };
   const handleStatusChange = (event: SelectChangeEvent) => {
     setStatusFilter(event.target.value);
-    table.getColumn('status')?.setFilterValue(event.target.value);
+    table.getColumn('Status')?.setFilterValue(event.target.value);
   };
   if (isLoading) {
     return (

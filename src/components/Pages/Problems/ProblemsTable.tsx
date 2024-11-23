@@ -37,7 +37,7 @@ function ProblemsTable({
   const { setProblems } = useProblemSlice();
   useEffect(() => {
     if (data.length) {
-      setProblems(data.map((p) => p._id));
+      setProblems(data.map((p) => ({ title: p.title, difficulty: p.difficulty, _id: p._id })));
     }
   }, [data]);
 
