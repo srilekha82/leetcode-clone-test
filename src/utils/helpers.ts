@@ -81,3 +81,7 @@ export const getGridColumnStyles = (
   }
   return 'auto'; // Default case
 };
+
+export const getRandomIndex = (length: number) => {
+  return Math.floor(Math.random() * 10) % length;
+};
