@@ -85,3 +85,9 @@ export const getGridColumnStyles = (
 export const getRandomIndex = (length: number) => {
   return Math.floor(Math.random() * 10) % length;
 };
+
+export const getGridTemplateColumns = (size1: number, size2: number) => {
+  const halfSize = Math.floor(size1 / 2);
+  const floredSizeTwp = Math.floor(size2);
+  return `${halfSize - 1}% ${100 - (halfSize + floredSizeTwp) + 2}% ${floredSizeTwp - 1}%`;
+};

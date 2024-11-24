@@ -1,22 +1,10 @@
 import { useNavigate, useParams } from 'react-router';
-import { Editor, Monaco } from '@monaco-editor/react';
+import { Monaco } from '@monaco-editor/react';
 import * as monaco from '@monaco-editor/react';
 import { useMutation } from '@tanstack/react-query';
 import getProblem from '../../../services/getProblem';
-import {
-  Alert,
-  Backdrop,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  IconButton,
-  Stack,
-  Tab,
-  Tabs,
-  Typography,
-} from '@mui/material';
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { Alert, Backdrop, Button, CircularProgress, IconButton, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Layout from '../../UI/Layout';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
 import LanguageDropDown from './LanguageDropDown';
@@ -24,15 +12,14 @@ import { darktheme, lighttheme, supportedLanguages, theme } from '../../../const
 import { useAuthSlice } from '../../../store/authslice/auth';
 import submitCode from '../../../services/sumbitCode';
 import getStatus from '../../../services/getSubmissionStatus';
-import transformInput, { a11yProps, getGridColumnStyles, getResult } from '../../../utils/helpers';
+import transformInput, {
+  a11yProps,
+  getGridColumnStyles,
+  getGridTemplateColumns,
+  getResult,
+} from '../../../utils/helpers';
 import CustomTabPanel from '../../UI/TabPanel';
-import {
-  Problem as ProblemType,
-  problemsubmissionstatus,
-  ShrinkActionKind,
-  submission,
-  user,
-} from '../../../utils/types';
+import { Problem as ProblemType, problemsubmissionstatus, submission, user } from '../../../utils/types';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { useUserSlice } from '../../../store/user';
 import SkeletonResultsLoader from '../../UI/SkeletonResultsLoader';
@@ -43,7 +30,14 @@ import SettingsOverscanOutlinedIcon from '@mui/icons-material/SettingsOverscanOu
 import CloseFullscreenOutlinedIcon from '@mui/icons-material/CloseFullscreenOutlined';
 import ChevronLeftOutlinedIcon from '@mui/icons-material/ChevronLeftOutlined';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
-import { initialShrinkState, shrinkReducer } from '../../reducers/ShrinkReducer';
+import ProblemDescription from './ProblemInfo';
+import CodeEditor from './CodeEditor';
+import CustomTabs from '../../UI/CustomTabs';
+import ProblemResults from './ProblemResults';
+import ProblemSubmissionStatus from './ProblemSubmissionStatus';
+import useResizePanel from '../../../hooks/useResizePanel';
+import useShrinkState from '../../../hooks/useShrinkState';
+
 export default function Problem() {
   const { problemname } = useParams();
   const editorRef = useRef(null);
@@ -72,50 +66,38 @@ export default function Problem() {
   const [errorInfoProblemFetch, setErrorInfoProblemFetch] = useState<Error | null>(null);
   const [code, setCode] = useState<Record<string, string>>({});
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [sizes, setSizes] = useState({ div1: 100, div2: 50 });
-
-  const startDragging = useCallback((e: any) => {
-    setIsDragging(true);
-    e.preventDefault();
-  }, []);
-
-  const stopDragging = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  const resize = useCallback(
-    (e: any) => {
-      if (!isDragging || !containerRef.current) return;
+  const navigate = useNavigate();
+  const [isLeftPanelExpanded, toggleLeftPanelExpansion] = useReducer((state) => {
+    if (state && editorRef.current) {
+      // @ts-ignore
+      editorRef.current.layout({});
+    }
+    return !state;
+  }, false);
+  const [isRightPanelExpanded, toggleRightPanelExpansion] = useReducer((state) => !state, false);
+  const {
+    expandLeftPanel,
+    expandRightPanel,
+    shrinkLeftHandler,
+    shrinkRightHandler,
+    isResizeActive,
+    isLeftPanelOnlyShrinked,
+    isRightPanelOnlyShrinked,
+    shrinkState,
+  } = useShrinkState({ isLeftPanelExpanded, isRightPanelExpanded });
+  const { startDragging, sizes } = useResizePanel({
+    initialSize: { div1: 100, div2: 50 },
+    containerRef,
+    resizeHandler: (e) => {
+      if (!containerRef.current) {
+        return null;
+      }
       const containerRect = containerRef.current.getBoundingClientRect();
       const percentage = ((e.clientX - containerRect.left) / containerRect.width) * 200;
       const constrainedPercentage = Math.floor(percentage);
-      setSizes({
-        div1: constrainedPercentage,
-        div2: Math.floor((200 - constrainedPercentage) / 2),
-      });
+      return { div1: constrainedPercentage, div2: Math.floor((200 - constrainedPercentage) / 2) };
     },
-    [isDragging]
-  );
-  useEffect(() => {
-    const handleMouseMove = (e: any) => {
-      resize(e);
-    };
-
-    const handleMouseUp = () => {
-      stopDragging();
-    };
-
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, resize, stopDragging]);
+  });
 
   useEffect(() => {
     try {
@@ -144,29 +126,33 @@ export default function Problem() {
       }
     }
   }, [problemname]);
-
-  const [isLeftPanelExpanded, toggleLeftPanelExpansion] = useReducer((state) => {
-    if (state && editorRef.current) {
-      // @ts-ignore
-      editorRef.current.layout({});
+  useEffect(() => {
+    if (user?.submissions.length) {
+      setProblemSubmissions(
+        user?.submissions.filter((sub) => sub.problemId === problemname?.slice(0, problemname.length - 1))
+      );
     }
-    return !state;
-  }, false);
-  const [isRightPanelExpanded, toggleRightPanelExpansion] = useReducer((state) => !state, false);
-  const [shrinkState, actiondispatcher] = useReducer(shrinkReducer, initialShrinkState);
+  }, [user?.submissions.length, problemname]);
+  useEffect(() => {
+    monaco.loader.init().then((monacoinstance: Monaco) => {
+      monacoinstance.editor.defineTheme('mylightTheme', lighttheme as theme);
+      monacoinstance.editor.defineTheme('mydarkTheme', darktheme as theme);
+    });
+    return () => {
+      setProblemSubmissions([]);
+    };
+  }, [colorMode]);
+  const { mutateAsync } = useMutation({
+    mutationKey: ['codesubmission'],
+    mutationFn: submitCode,
+  });
+  const { mutateAsync: updateSubmitMutateAsync } = useMutation({
+    mutationKey: ['updatesubmission'],
+    mutationFn: addSubmission,
+  });
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setCurrentTab(newValue);
-  };
-  const handleSubmissionTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setSubmissionTab(newValue);
-  };
-
-  const handleLeftTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setLeftTab(newValue);
-  };
-  const navigate = useNavigate();
-
+  const firstPanelTabLabels = useMemo(() => ['Description', 'Submissions'], []);
+  const secondPanelTabLabels = useMemo(() => ['Code', 'Test Results', 'Output'], []);
   const handleClose = () => {
     setOpen(false);
   };
@@ -180,33 +166,19 @@ export default function Problem() {
       return copy;
     });
   };
-  useEffect(() => {
-    if (user?.submissions.length) {
-      setProblemSubmissions(
-        user?.submissions.filter((sub) => sub.problemId === problemname?.slice(0, problemname.length - 1))
-      );
+  const handleTabChange = (
+    _: React.SyntheticEvent,
+    newValue: number,
+    type: 'firstpaneltabs' | 'secondpaneltabs' | 'codesubmissiontab'
+  ) => {
+    if (type === 'firstpaneltabs') {
+      setLeftTab(newValue);
+    } else if (type === 'secondpaneltabs') {
+      setCurrentTab(newValue);
+    } else {
+      setSubmissionTab(newValue);
     }
-  }, [user?.submissions.length, problemname]);
-
-  const { mutateAsync } = useMutation({
-    mutationKey: ['codesubmission'],
-    mutationFn: submitCode,
-  });
-  const { mutateAsync: updateSubmitMutateAsync } = useMutation({
-    mutationKey: ['updatesubmission'],
-    mutationFn: addSubmission,
-  });
-
-  useEffect(() => {
-    monaco.loader.init().then((monacoinstance: Monaco) => {
-      monacoinstance.editor.defineTheme('mylightTheme', lighttheme as theme);
-      monacoinstance.editor.defineTheme('mydarkTheme', darktheme as theme);
-    });
-    return () => {
-      setProblemSubmissions([]);
-    };
-  }, [colorMode]);
-
+  };
   if (isProblemLoading) {
     return (
       <>
@@ -392,27 +364,22 @@ export default function Problem() {
     <Layout className='problem-layout' showFooter={false}>
       <div
         ref={containerRef}
-        className={`tw-gap-0.5 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : !shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? 'leftshrinked' : !shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? 'rightshrinked' : ''}`}
+        className={`tw-gap-0.5 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : isLeftPanelOnlyShrinked ? 'leftshrinked' : isRightPanelOnlyShrinked ? 'rightshrinked' : ''}`}
         style={
-          !shrinkState.shrinkleftpanel && !shrinkState.shrinkrightpanel && !isLeftPanelExpanded && !isRightPanelExpanded
+          isResizeActive
             ? {
-                gridTemplateColumns: `${Math.floor(sizes.div1 / 2) - 1}% ${100 - (Math.floor(sizes.div1 / 2) + Math.floor(sizes.div2)) + 2}% ${Math.floor(sizes.div2) - 1}%`,
+                gridTemplateColumns: `${getGridTemplateColumns(sizes.div1, sizes.div2)}`,
               }
             : undefined
         }
       >
-        {!shrinkState.shrinkleftpanel &&
-          !shrinkState.shrinkrightpanel &&
-          !isLeftPanelExpanded &&
-          !isRightPanelExpanded && <div onMouseDown={startDragging} className='problem-resizer'></div>}
-
-        {!shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? (
+        {isResizeActive && <div onMouseDown={startDragging} className='problem-resizer'></div>}
+        {isLeftPanelOnlyShrinked ? (
           // !left Sidepanel
           <div
             className='tw-flex tw-flex-col tw-justify-between tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg'
             style={{
               backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
-              borderWidth: '2px',
               borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
               display: isLeftPanelExpanded && shrinkState.shrinkrightpanel ? 'none' : 'flex',
               gridColumn: getGridColumnStyles(
@@ -422,39 +389,29 @@ export default function Problem() {
               ),
             }}
           >
-            <Tabs orientation='vertical' value={leftTab} onChange={handleLeftTabChange}>
-              <Tab
-                className={colorMode === 'dark' ? '!tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
-                label='Description'
-                sx={{ writingMode: 'vertical-lr' }}
-                {...a11yProps(0)}
-              ></Tab>
-              <Tab
-                className={colorMode === 'dark' ? '!tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
-                label='Submissions'
-                sx={{ writingMode: 'vertical-lr' }}
-                {...a11yProps(1)}
-              ></Tab>
-            </Tabs>
+            <CustomTabs
+              tabs={firstPanelTabLabels}
+              writingMode='vertical-lr'
+              value={leftTab}
+              onChange={(event: React.SyntheticEvent, value: any) => handleTabChange(event, value, 'firstpaneltabs')}
+              orientation='vertical'
+            ></CustomTabs>
             <IconButton
               onClick={() => {
                 // @ts-ignore
                 editorRef.current.layout(771, 436);
-                actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL });
+                expandRightPanel();
               }}
             >
               <ChevronRightOutlinedIcon />
             </IconButton>
           </div>
         ) : null}
-        {/* 
-        !first containr
-         */}
+        {/* !first container*/}
         <div
           className={`tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg`}
           style={{
             backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
-            borderWidth: '2px',
             borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
             display: isLeftPanelExpanded || shrinkState.shrinkrightpanel ? 'none' : 'block',
             gridColumn: getGridColumnStyles(
@@ -462,14 +419,15 @@ export default function Problem() {
               shrinkState.shrinkrightpanel,
               shrinkState.shrinkleftpanel
             ),
-            // width:`${sizes.div1}%`
           }}
         >
           <div className='tw-flex tw-items-center tw-justify-between'>
-            <Tabs value={leftTab} onChange={handleLeftTabChange}>
-              <Tab className={colorMode === 'dark' ? '!tw-text-white' : ''} label='Description' {...a11yProps(0)}></Tab>
-              <Tab className={colorMode === 'dark' ? '!tw-text-white' : ''} label='Submissions' {...a11yProps(1)}></Tab>
-            </Tabs>
+            <CustomTabs
+              tabs={firstPanelTabLabels}
+              className={colorMode === 'dark' ? '!tw-text-white' : ''}
+              value={leftTab}
+              onChange={(event: React.SyntheticEvent, value: any) => handleTabChange(event, value, 'firstpaneltabs')}
+            ></CustomTabs>
             <div>
               <IconButton
                 onClick={() => {
@@ -480,67 +438,28 @@ export default function Problem() {
                 {!isRightPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
               </IconButton>
               {!isRightPanelExpanded && (
-                <IconButton
-                  onClick={() => {
-                    if (!shrinkState.shrinkrightpanel) {
-                      actiondispatcher({ type: ShrinkActionKind.SHRINKRIGHTPANEL });
-                    } else {
-                      actiondispatcher({ type: ShrinkActionKind.EXPANDRIGHTPANEL });
-                    }
-                  }}
-                  size='small'
-                >
+                <IconButton onClick={shrinkRightHandler} size='small'>
                   {!shrinkState.shrinkrightpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
                 </IconButton>
               )}
             </div>
           </div>
           <CustomTabPanel value={leftTab} index={0}>
-            <Stack spacing={8} className='tw-p-2'>
-              <Box>
-                <Typography variant='h5'>
-                  {problemname?.slice(problemname.length - 1)}. {problemInfo?.title}
-                </Typography>
-                <div className='tw-mt-2'>
-                  <Chip
-                    label={problemInfo?.difficulty}
-                    color={
-                      problemInfo?.difficulty === 'easy'
-                        ? 'info'
-                        : problemInfo?.difficulty === 'hard'
-                          ? 'error'
-                          : 'warning'
-                    }
-                  />
-                </div>
-                <div className='tw-mt-2'>
-                  <Typography variant='subtitle1'>{problemInfo?.description}</Typography>
-                </div>
-              </Box>
-              <Box>
-                <Typography variant='h5'>Examples</Typography>
-                <div className='tw-flex tw-gap-2 tw-items-center tw-justify-start'>
-                  <Typography variant='h6'>Input :</Typography>
-                  <Typography variant='body2'>{problemInfo?.sampleInput}</Typography>
-                </div>
-                <div className='tw-flex tw-gap-2 tw-items-center tw-justify-start'>
-                  <Typography variant='h6'>Output:</Typography>
-                  <Typography variant='body2'>{problemInfo?.sampleOutput}</Typography>
-                </div>
-              </Box>
-            </Stack>
+            <ProblemDescription
+              problem={problemInfo}
+              serialNo={problemname?.slice(problemname.length - 1)}
+            ></ProblemDescription>
           </CustomTabPanel>
           <CustomTabPanel value={leftTab} index={1}>
             {problemsubmissions.length ? <ProblemSubmissions data={problemsubmissions}></ProblemSubmissions> : null}
           </CustomTabPanel>
         </div>
-        {!shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? (
+        {isRightPanelOnlyShrinked ? (
           // !Right Sidepanel
           <div
             className={`tw-p-2 tw-border-2 tw-rounded-lg tw-h-full tw-flex tw-flex-col tw-justify-between`}
             style={{
               backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
-              borderWidth: '2px',
               borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
               display: isRightPanelExpanded && shrinkState.shrinkleftpanel ? 'none' : 'flex',
               gridColumn: getGridColumnStyles(
@@ -550,27 +469,14 @@ export default function Problem() {
               ),
             }}
           >
-            <Tabs orientation='vertical' value={currentTab} onChange={handleTabChange}>
-              <Tab
-                className={colorMode === 'dark' ? 'tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
-                sx={{ writingMode: 'vertical-lr' }}
-                label='Code'
-                {...a11yProps(0)}
-              ></Tab>
-              <Tab
-                className={colorMode === 'dark' ? 'tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
-                sx={{ writingMode: 'vertical-lr' }}
-                label='Test Results'
-                {...a11yProps(1)}
-              ></Tab>
-              <Tab
-                className={colorMode === 'dark' ? 'tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
-                sx={{ writingMode: 'vertical-lr' }}
-                label='Output'
-                {...a11yProps(2)}
-              ></Tab>
-            </Tabs>
-            <IconButton onClick={() => actiondispatcher({ type: ShrinkActionKind.EXPANDLEFTPANEL })}>
+            <CustomTabs
+              className={colorMode === 'dark' ? 'tw-text-white !tw-min-w-12' : '!tw-min-w-12'}
+              onChange={(event: React.SyntheticEvent, value: any) => handleTabChange(event, value, 'secondpaneltabs')}
+              value={currentTab}
+              orientation='vertical'
+              tabs={secondPanelTabLabels}
+            />
+            <IconButton onClick={expandLeftPanel}>
               <ChevronLeftOutlinedIcon />
             </IconButton>
           </div>
@@ -581,7 +487,6 @@ export default function Problem() {
           className={`tw-p-2 tw-border-2 tw-rounded-lg tw-h-full tw-order-3`}
           style={{
             backgroundColor: colorMode === 'light' ? 'white' : '#24292e',
-            borderWidth: '2px',
             borderColor: colorMode === 'light' ? '#c5c9cb' : '#ffffff12',
             gridColumn: getGridColumnStyles(
               isLeftPanelExpanded,
@@ -589,56 +494,30 @@ export default function Problem() {
               shrinkState.shrinkrightpanel
             ),
             display: isRightPanelExpanded || shrinkState.shrinkleftpanel ? 'none' : 'block',
-
-            width:
-              !shrinkState.shrinkleftpanel &&
-              !shrinkState.shrinkrightpanel &&
-              !isLeftPanelExpanded &&
-              !isRightPanelExpanded
-                ? `${sizes.div2}%`
-                : '100%',
+            width: isResizeActive ? `${sizes.div2}%` : '100%',
             height: `calc(100% - 70px)`,
-            position:
-              !shrinkState.shrinkleftpanel &&
-              !shrinkState.shrinkrightpanel &&
-              !isLeftPanelExpanded &&
-              !isRightPanelExpanded
-                ? 'absolute'
-                : 'static',
-            right:
-              !shrinkState.shrinkleftpanel &&
-              !shrinkState.shrinkrightpanel &&
-              !isLeftPanelExpanded &&
-              !isRightPanelExpanded
-                ? 0
-                : 'initial',
+            position: isResizeActive ? 'absolute' : 'static',
+            right: isResizeActive ? 0 : 'initial',
           }}
         >
           <div className='tw-flex tw-items-center tw-justify-between'>
-            <Tabs value={currentTab} onChange={handleTabChange}>
-              <Tab className={colorMode === 'dark' ? 'tw-text-white' : ''} label='Code' {...a11yProps(0)}></Tab>
-              <Tab className={colorMode === 'dark' ? 'tw-text-white' : ''} label='Test Results' {...a11yProps(1)}></Tab>
-              <Tab className={colorMode === 'dark' ? 'tw-text-white' : ''} label='Output' {...a11yProps(2)}></Tab>
-            </Tabs>
+            <CustomTabs
+              value={currentTab}
+              tabs={secondPanelTabLabels}
+              className={colorMode === 'dark' ? 'tw-text-white' : ''}
+              onChange={(event: React.SyntheticEvent, value: any) => handleTabChange(event, value, 'secondpaneltabs')}
+            ></CustomTabs>
             <div>
               <IconButton onClick={toggleLeftPanelExpansion} size='small'>
                 {!isLeftPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
               </IconButton>
               {!isLeftPanelExpanded && (
-                <IconButton
-                  onClick={() => {
-                    !shrinkState.shrinkleftpanel
-                      ? actiondispatcher({ type: ShrinkActionKind.SHRINKLEFTPANEL })
-                      : actiondispatcher({ type: ShrinkActionKind.EXPANDLEFTPANEL });
-                  }}
-                  size='small'
-                >
+                <IconButton onClick={shrinkLeftHandler} size='small'>
                   {!shrinkState.shrinkleftpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
                 </IconButton>
               )}
             </div>
           </div>
-
           <CustomTabPanel innerDivClassName='tw-h-full' value={currentTab} index={0}>
             <div className='tw-h-[73dvh]'>
               <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
@@ -649,18 +528,9 @@ export default function Problem() {
                   handleChange={handleChange}
                 />
               </div>
-              <Editor
-                theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
-                language={supportedLanguages[langauge].toLowerCase()}
-                value={code[langauge]}
-                className={`tw-max-h-full tw-overflow-x-auto tw-max-w-dvw`}
+              <CodeEditor
                 onMount={(editor) => {
                   editorRef.current = editor;
-                }}
-                options={{
-                  automaticLayout: true,
-                  scrollBeyondLastLine: false,
-                  minimap: { enabled: false },
                 }}
                 onChange={(changedcode) => {
                   const storedCode = localStorage.getItem(`${problemname?.slice(0, problemname.length - 1)}`);
@@ -682,7 +552,10 @@ export default function Problem() {
                     });
                   }
                 }}
-              />
+                code={code[langauge]}
+                language={supportedLanguages[langauge].toLowerCase()}
+                theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
+              ></CodeEditor>
             </div>
           </CustomTabPanel>
           <CustomTabPanel value={currentTab} index={1}>
@@ -703,7 +576,9 @@ export default function Problem() {
                 <Tabs
                   className={colorMode === 'dark' ? 'tw-text-white' : ''}
                   value={submissionTab}
-                  onChange={handleSubmissionTabChange}
+                  onChange={(event: React.SyntheticEvent, value: any) =>
+                    handleTabChange(event, value, 'codesubmissiontab')
+                  }
                 >
                   {problemRunStatus.map((s, i) => (
                     <Tab
@@ -727,35 +602,12 @@ export default function Problem() {
                       const inputvalues = s.stdin.split('\n');
                       return (
                         <CustomTabPanel index={i} key={`language${s.language_id}`} value={submissionTab}>
-                          <Stack>
-                            {Object.values(problemInfo?.metadata.variables_names).map((l, j) => (
-                              <Stack key={`input${j}`}>
-                                <Typography className='tw-p-2' color='primary'>
-                                  {l} =
-                                </Typography>
-                                <Typography
-                                  variant='body1'
-                                  className='tw-p-2'
-                                  sx={{ backgroundColor: '#ECECEC' }}
-                                  bgcolor={'Background'}
-                                >
-                                  {inputvalues[j]}
-                                </Typography>
-                              </Stack>
-                            ))}
-                            <Typography className='tw-p-2' color='primary'>
-                              Output
-                            </Typography>
-                            <Typography sx={{ backgroundColor: '#ECECEC' }} className='tw-p-2'>
-                              {s.stdout}
-                            </Typography>
-                            <Typography className='tw-p-2' color='primary'>
-                              Expected
-                            </Typography>
-                            <Typography sx={{ backgroundColor: '#ECECEC' }} className='tw-p-2'>
-                              {s.expected_output}
-                            </Typography>
-                          </Stack>
+                          <ProblemResults
+                            inputValues={inputvalues}
+                            variables={Object.values(problemInfo?.metadata.variables_names)}
+                            standardOutput={s.stdout}
+                            expectedOutput={s.expected_output}
+                          />
                         </CustomTabPanel>
                       );
                     })
@@ -767,42 +619,17 @@ export default function Problem() {
               </div>
             )}
           </CustomTabPanel>
-
           <CustomTabPanel value={currentTab} index={2}>
             {problemSubmissionLoading ? (
               <Stack className='tw-h-[75dvh]' spacing={2}>
                 <SkeletonResultsLoader />
               </Stack>
-            ) : problemSubmissionStatus === 'Accepted' ? (
-              <Stack spacing={2} className='tw-h-[75dvh]'>
-                <div className='tw-flex tw-justify-between tw-items-center'>
-                  <Typography color='success' variant='h5'>
-                    Accepted
-                  </Typography>
-                  <Typography>
-                    Passed Test Cases {problemsuccessCount}/{problemInfo?.testCases.length}
-                  </Typography>
-                </div>
-                <div>
-                  <Typography>You have successfully completed this problem!</Typography>
-                </div>
-              </Stack>
-            ) : problemSubmissionStatus === 'Rejected' ? (
-              <Stack spacing={2} className='tw-h-[75dvh]'>
-                <div className='tw-flex tw-justify-between tw-items-center'>
-                  <Typography color='error' variant='h4'>
-                    Rejected
-                  </Typography>
-                  <Typography>
-                    Passed Test Cases {problemsuccessCount}/{problemInfo?.testCases.length}
-                  </Typography>
-                </div>
-                <div>
-                  <Typography>You have successfully completed this problem!</Typography>
-                </div>
-              </Stack>
             ) : (
-              <Stack spacing={2} className='tw-h-[75dvh]'></Stack>
+              <ProblemSubmissionStatus
+                totalTestCases={problemInfo?.testCases.length}
+                successCount={problemsuccessCount}
+                problemSubmissionStatus={problemSubmissionStatus}
+              />
             )}
           </CustomTabPanel>
           <div className='tw-flex tw-justify-between tw-items-center'>
