@@ -10,7 +10,6 @@ import { useUserSlice } from '../../../store/user';
 
 function Home() {
   const isLogedIn = useAuthSlice((state) => state.isLogedIn);
-  const sessionLoading = useUserSlice((state) => state.sessionLoading);
   const user = useUserSlice((state) => state.user);
   const setUser = useUserSlice((state) => state.setUser);
   const { state } = useLocation();
