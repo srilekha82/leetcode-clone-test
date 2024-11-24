@@ -70,53 +70,57 @@ export default function Navbar() {
               ></img>
             </Link>
           </li>
-          <li>
-            <div className='tw-flex tw-items-center tw-gap-3'>
-              <ButtonGroup
-                disabled={problems.length === 0}
-                size='medium'
-                variant='outlined'
-                aria-label='Basic button group'
-              >
-                <Button
-                  sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
-                  onClick={() => toggleDrawerVisiblility()}
+          {isLogedIn && (
+            <li>
+              <div className='tw-flex tw-items-center tw-gap-3'>
+                <ButtonGroup
+                  disabled={problems.length === 0}
+                  size='medium'
+                  variant='outlined'
+                  aria-label='Basic button group'
                 >
-                  <Stack gap='2' alignItems='center' flexDirection='row'>
-                    <span>
-                      <DoubleArrowOutlinedIcon sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }} />
-                    </span>
-                    <Typography variant='body2'>Problem List</Typography>
-                  </Stack>
-                </Button>
-                <Button
-                  sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
-                  size='small'
-                  onClick={problemPreviousPage}
-                >
-                  <ChevronLeftOutlined
+                  <Button
                     sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
-                  ></ChevronLeftOutlined>
-                </Button>
-                <Button
-                  sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
-                  size='small'
-                  onClick={problemNextPageHandler}
-                >
-                  <ChevronRightOutlined
+                    onClick={() => toggleDrawerVisiblility()}
+                  >
+                    <Stack gap='2' alignItems='center' flexDirection='row'>
+                      <span>
+                        <DoubleArrowOutlinedIcon
+                          sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                        />
+                      </span>
+                      <Typography variant='body2'>Problem List</Typography>
+                    </Stack>
+                  </Button>
+                  <Button
                     sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
-                  ></ChevronRightOutlined>
-                </Button>
-                <Button
-                  sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
-                  size='small'
-                  onClick={randomProblemHandler}
-                >
-                  <ShuffleOutlinedIcon sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }} />
-                </Button>
-              </ButtonGroup>
-            </div>
-          </li>
+                    size='small'
+                    onClick={problemPreviousPage}
+                  >
+                    <ChevronLeftOutlined
+                      sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                    ></ChevronLeftOutlined>
+                  </Button>
+                  <Button
+                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                    size='small'
+                    onClick={problemNextPageHandler}
+                  >
+                    <ChevronRightOutlined
+                      sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                    ></ChevronRightOutlined>
+                  </Button>
+                  <Button
+                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                    size='small'
+                    onClick={randomProblemHandler}
+                  >
+                    <ShuffleOutlinedIcon sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }} />
+                  </Button>
+                </ButtonGroup>
+              </div>
+            </li>
+          )}
           <ul className='tw-list-none tw-flex tw-items-center'>
             <li className='tw-flex tw-justify-center tw-items-center'>
               {!isLogedIn ? (

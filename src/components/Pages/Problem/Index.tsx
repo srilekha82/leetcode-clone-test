@@ -16,7 +16,7 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import Layout from '../../UI/Layout';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
 import LanguageDropDown from './LanguageDropDown';
@@ -44,7 +44,6 @@ import CloseFullscreenOutlinedIcon from '@mui/icons-material/CloseFullscreenOutl
 import ChevronLeftOutlinedIcon from '@mui/icons-material/ChevronLeftOutlined';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import { initialShrinkState, shrinkReducer } from '../../reducers/ShrinkReducer';
-
 export default function Problem() {
   const { problemname } = useParams();
   const editorRef = useRef(null);
@@ -72,6 +71,51 @@ export default function Problem() {
   const [isErrorWithProblemInfo, setIsErrorWithProblemInfo] = useState<boolean>(false);
   const [errorInfoProblemFetch, setErrorInfoProblemFetch] = useState<Error | null>(null);
   const [code, setCode] = useState<Record<string, string>>({});
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [sizes, setSizes] = useState({ div1: 100, div2: 50 });
+
+  const startDragging = useCallback((e: any) => {
+    setIsDragging(true);
+    e.preventDefault();
+  }, []);
+
+  const stopDragging = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const resize = useCallback(
+    (e: any) => {
+      if (!isDragging || !containerRef.current) return;
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const percentage = ((e.clientX - containerRect.left) / containerRect.width) * 200;
+      const constrainedPercentage = Math.floor(percentage);
+      setSizes({
+        div1: constrainedPercentage,
+        div2: Math.floor((200 - constrainedPercentage) / 2),
+      });
+    },
+    [isDragging]
+  );
+  useEffect(() => {
+    const handleMouseMove = (e: any) => {
+      resize(e);
+    };
+
+    const handleMouseUp = () => {
+      stopDragging();
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, resize, stopDragging]);
 
   useEffect(() => {
     try {
@@ -347,12 +391,20 @@ export default function Problem() {
   return (
     <Layout className='problem-layout' showFooter={false}>
       <div
+        ref={containerRef}
         className={`tw-gap-0.5 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : !shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? 'leftshrinked' : !shrinkState.shrinkrightpanel && shrinkState.shrinkleftpanel ? 'rightshrinked' : ''}`}
+        style={
+          !shrinkState.shrinkleftpanel && !shrinkState.shrinkrightpanel && !isLeftPanelExpanded && !isRightPanelExpanded
+            ? {
+                gridTemplateColumns: `${Math.floor(sizes.div1 / 2) - 1}% ${100 - (Math.floor(sizes.div1 / 2) + Math.floor(sizes.div2)) + 2}% ${Math.floor(sizes.div2) - 1}%`,
+              }
+            : undefined
+        }
       >
         {!shrinkState.shrinkleftpanel &&
           !shrinkState.shrinkrightpanel &&
           !isLeftPanelExpanded &&
-          !isRightPanelExpanded && <div className='problem-resizer'></div>}
+          !isRightPanelExpanded && <div onMouseDown={startDragging} className='problem-resizer'></div>}
 
         {!shrinkState.shrinkleftpanel && shrinkState.shrinkrightpanel ? (
           // !left Sidepanel
@@ -395,6 +447,9 @@ export default function Problem() {
             </IconButton>
           </div>
         ) : null}
+        {/* 
+        !first containr
+         */}
         <div
           className={`tw-w-full tw-h-full tw-p-2 tw-border-2 tw-rounded-lg`}
           style={{
@@ -407,6 +462,7 @@ export default function Problem() {
               shrinkState.shrinkrightpanel,
               shrinkState.shrinkleftpanel
             ),
+            // width:`${sizes.div1}%`
           }}
         >
           <div className='tw-flex tw-items-center tw-justify-between'>
@@ -533,6 +589,29 @@ export default function Problem() {
               shrinkState.shrinkrightpanel
             ),
             display: isRightPanelExpanded || shrinkState.shrinkleftpanel ? 'none' : 'block',
+
+            width:
+              !shrinkState.shrinkleftpanel &&
+              !shrinkState.shrinkrightpanel &&
+              !isLeftPanelExpanded &&
+              !isRightPanelExpanded
+                ? `${sizes.div2}%`
+                : '100%',
+            height: `calc(100% - 70px)`,
+            position:
+              !shrinkState.shrinkleftpanel &&
+              !shrinkState.shrinkrightpanel &&
+              !isLeftPanelExpanded &&
+              !isRightPanelExpanded
+                ? 'absolute'
+                : 'static',
+            right:
+              !shrinkState.shrinkleftpanel &&
+              !shrinkState.shrinkrightpanel &&
+              !isLeftPanelExpanded &&
+              !isRightPanelExpanded
+                ? 0
+                : 'initial',
           }}
         >
           <div className='tw-flex tw-items-center tw-justify-between'>
