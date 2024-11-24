@@ -17,7 +17,7 @@ function Home() {
   const { data, isError, error, isSuccess } = useQuery({
     queryKey: ['get-user'],
     queryFn: () => getUser(state),
-    enabled: isLogedIn && state !== '' && state !== null && sessionLoading == 'Completed' && user == null,
+    enabled: isLogedIn && state !== '' && state !== null && user == null,
   });
   useEffect(() => {
     if (data && isSuccess) {
