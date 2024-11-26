@@ -8,12 +8,13 @@ const ProblemDescription: React.FC<{
   return (
     <Stack spacing={8} className='tw-p-2'>
       <Box>
-        <Typography variant='h5'>
+        <Typography variant='h5' fontWeight='500'>
           {serialNo}.{problem?.title}
         </Typography>
         <div className='tw-mt-2'>
           <Chip
             label={problem?.difficulty}
+            size='small'
             color={problem?.difficulty === 'easy' ? 'info' : problem?.difficulty === 'hard' ? 'error' : 'warning'}
           />
         </div>
@@ -22,13 +23,19 @@ const ProblemDescription: React.FC<{
         </div>
       </Box>
       <Box>
-        <Typography variant='h5'>Examples</Typography>
+        <Typography variant='subtitle1' fontWeight='bold'>
+          Examples
+        </Typography>
         <div className='tw-flex tw-gap-2 tw-items-center tw-justify-start'>
-          <Typography variant='h6'>Input :</Typography>
+          <Typography variant='subtitle2' fontWeight='bold'>
+            Input :
+          </Typography>
           <Typography variant='body2'>{problem?.sampleInput}</Typography>
         </div>
         <div className='tw-flex tw-gap-2 tw-items-center tw-justify-start'>
-          <Typography variant='h6'>Output:</Typography>
+          <Typography variant='subtitle2' fontWeight='bold'>
+            Output:
+          </Typography>
           <Typography variant='body2'>{problem?.sampleOutput}</Typography>
         </div>
       </Box>

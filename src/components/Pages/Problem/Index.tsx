@@ -3,7 +3,7 @@ import { Monaco } from '@monaco-editor/react';
 import * as monaco from '@monaco-editor/react';
 import { useMutation } from '@tanstack/react-query';
 import getProblem from '../../../services/getProblem';
-import { Alert, Backdrop, Button, CircularProgress, IconButton, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { Alert, Backdrop, CircularProgress, IconButton, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Layout from '../../UI/Layout';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
@@ -361,7 +361,14 @@ export default function Problem() {
   };
 
   return (
-    <Layout className='problem-layout' showFooter={false}>
+    <Layout
+      problemExecuteHandler={onClickHandler}
+      executionLoading={submissionStatusLoading}
+      submitionLoading={problemSubmissionLoading}
+      problemSubmitHandler={onSubmitHandler}
+      className='problem-layout'
+      showFooter={false}
+    >
       <div
         ref={containerRef}
         className={`tw-gap-0.5 tw-h-full problem-container ${isLeftPanelExpanded || isRightPanelExpanded ? 'expanded' : isLeftPanelOnlyShrinked ? 'leftshrinked' : isRightPanelOnlyShrinked ? 'rightshrinked' : ''}`}
@@ -392,6 +399,7 @@ export default function Problem() {
             <CustomTabs
               tabs={firstPanelTabLabels}
               writingMode='vertical-lr'
+              className={colorMode === 'dark' ? '!tw-text-white' : ''}
               value={leftTab}
               onChange={(event: React.SyntheticEvent, value: any) => handleTabChange(event, value, 'firstpaneltabs')}
               orientation='vertical'
@@ -475,6 +483,7 @@ export default function Problem() {
               value={currentTab}
               orientation='vertical'
               tabs={secondPanelTabLabels}
+              writingMode='vertical-lr'
             />
             <IconButton onClick={expandLeftPanel}>
               <ChevronLeftOutlinedIcon />
@@ -495,7 +504,7 @@ export default function Problem() {
             ),
             display: isRightPanelExpanded || shrinkState.shrinkleftpanel ? 'none' : 'block',
             width: isResizeActive ? `${sizes.div2}%` : '100%',
-            height: `calc(100% - 70px)`,
+            height: isResizeActive ? `calc(100% - 70px)` : '100%',
             position: isResizeActive ? 'absolute' : 'static',
             right: isResizeActive ? 0 : 'initial',
           }}
@@ -621,33 +630,18 @@ export default function Problem() {
           </CustomTabPanel>
           <CustomTabPanel value={currentTab} index={2}>
             {problemSubmissionLoading ? (
-              <Stack className='tw-h-[75dvh]' spacing={2}>
+              <Stack className='tw-h-[90dvh]' spacing={2}>
                 <SkeletonResultsLoader />
               </Stack>
             ) : (
               <ProblemSubmissionStatus
+                isFullmode={isLeftPanelExpanded || (shrinkState.shrinkrightpanel && !shrinkState.shrinkleftpanel)}
                 totalTestCases={problemInfo?.testCases.length}
                 successCount={problemsuccessCount}
                 problemSubmissionStatus={problemSubmissionStatus}
               />
             )}
           </CustomTabPanel>
-          <div className='tw-flex tw-justify-between tw-items-center'>
-            <div>Saved</div>
-            <div className='tw-flex tw-gap-2'>
-              <Button
-                variant='outlined'
-                color='primary'
-                className={`${colorMode === 'light' ? 'tw-bg-[#ECECEC]' : 'tw-bg-[#24292e] tw-text-white'}`}
-                onClick={onClickHandler}
-              >
-                Run
-              </Button>
-              <Button variant='contained' color='success' onClick={onSubmitHandler}>
-                Submit
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
     </Layout>

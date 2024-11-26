@@ -1,8 +1,10 @@
-import { Link as ReactLink, useNavigate, useParams } from 'react-router-dom';
-import darklogo from '../../assets/images/logo-dark.26900637.svg';
-import lightlogo from '../../assets/images/logo-light.5034df26.svg';
+import { Link as ReactLink, useLocation, useNavigate, useParams } from 'react-router-dom';
+import darklogo from '../../assets/images/logo_dark.png';
+import lightlogo from '../../assets/images/logo_light.png';
+import leetcodedarklogo from '../../assets/images/logo-dark.26900637.svg';
+import leetcodelightlogo from '../../assets/images/logo-light.5034df26.svg';
 import { usethemeUtils } from '../../context/ThemeWrapper';
-import { Button, ButtonGroup, Link, Stack, Typography } from '@mui/material';
+import { Button, ButtonGroup, CircularProgress, Link, Stack, Typography } from '@mui/material';
 import DarkModeIcon from '@mui/icons-material/DarkModeOutlined';
 import LightModeIcon from '@mui/icons-material/LightModeOutlined';
 import { useAuthSlice } from '../../store/authslice/auth';
@@ -14,13 +16,26 @@ import { useProblemSlice } from '../../store/problemSlice/problem';
 import { getRandomIndex } from '../../utils/helpers';
 import { useCallback, useReducer } from 'react';
 import CustomDrawer from './Drawer';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 
-export default function Navbar() {
+export default function Navbar({
+  problemExecuteHandler,
+  problemSubmitHandler,
+  executionLoading = false,
+  submitionLoading = false,
+}: {
+  problemExecuteHandler: () => void;
+  problemSubmitHandler: () => void;
+  executionLoading?: boolean;
+  submitionLoading?: boolean;
+}) {
   const { colorMode, toggleColorMode } = usethemeUtils();
   const isLogedIn = useAuthSlice((state) => state.isLogedIn);
   const { problems } = useProblemSlice();
   const { problemname } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [openDrawer, toggleDrawerVisiblility] = useReducer((state) => !state, false);
 
   const problemNextPageHandler = useCallback(() => {
@@ -59,64 +74,116 @@ export default function Navbar() {
     <>
       {problems.length > 0 && <CustomDrawer problems={problems} open={openDrawer} toggleDrawer={toggleDrawer} />}
       <nav className='tw-border-b-[#ffffff24]'>
-        <ul className='tw-container-md tw-mx-auto tw-flex tw-justify-evenly tw-items-center tw-py-2 tw-list-none'>
-          <li className='tw-p-1'>
+        <ul
+          className={`tw-container-md tw-flex ${location.pathname.includes('/problems/') ? 'tw-justify-between' : 'tw-justify-evenly'} tw-mx-2 tw-items-center tw-list-none`}
+        >
+          <li className='tw-p-1 tw-flex tw-items-center tw-gap-2 '>
             <Link to='/' component={ReactLink} underline='hover'>
-              <img
-                className='tw-object-contain'
-                src={colorMode === 'light' ? darklogo : lightlogo}
-                width={100}
-                height={80}
-              ></img>
+              {location.pathname.includes('/problems/') ? (
+                <img
+                  className='tw-object-contain'
+                  src={colorMode === 'light' ? lightlogo : darklogo}
+                  width={20}
+                  height={20}
+                ></img>
+              ) : (
+                <img
+                  className='tw-object-contain'
+                  src={colorMode === 'light' ? leetcodedarklogo : leetcodelightlogo}
+                  width={100}
+                  height={80}
+                ></img>
+              )}
             </Link>
-          </li>
-          {isLogedIn && (
-            <li>
+            {isLogedIn && location.pathname.includes('/problems/') && (
               <div className='tw-flex tw-items-center tw-gap-3'>
                 <ButtonGroup
                   disabled={problems.length === 0}
                   size='medium'
-                  variant='outlined'
+                  variant='text'
                   aria-label='Basic button group'
                 >
                   <Button
-                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
                     onClick={() => toggleDrawerVisiblility()}
                   >
                     <Stack gap='2' alignItems='center' flexDirection='row'>
                       <span>
                         <DoubleArrowOutlinedIcon
-                          sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                          sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
                         />
                       </span>
                       <Typography variant='body2'>Problem List</Typography>
                     </Stack>
                   </Button>
                   <Button
-                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
                     size='small'
                     onClick={problemPreviousPage}
                   >
                     <ChevronLeftOutlined
-                      sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                      sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
                     ></ChevronLeftOutlined>
                   </Button>
                   <Button
-                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
                     size='small'
                     onClick={problemNextPageHandler}
                   >
                     <ChevronRightOutlined
-                      sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                      sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
                     ></ChevronRightOutlined>
                   </Button>
                   <Button
-                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }}
+                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
                     size='small'
                     onClick={randomProblemHandler}
                   >
-                    <ShuffleOutlinedIcon sx={{ color: colorMode === 'dark' ? 'common.white' : 'primart.dark' }} />
+                    <ShuffleOutlinedIcon sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }} />
                   </Button>
+                </ButtonGroup>
+              </div>
+            )}
+          </li>
+          {isLogedIn && location.pathname.includes('/problems/') && (
+            <li>
+              <div className='tw-flex tw-gap-2'>
+                <ButtonGroup
+                  disabled={problems.length === 0}
+                  size='medium'
+                  variant='text'
+                  aria-label='Basic button group'
+                >
+                  {executionLoading || submitionLoading ? (
+                    <Button variant='outlined' sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}>
+                      <Stack direction={'row'} alignItems='center' spacing={2}>
+                        <Typography variant='body2'> Pending</Typography>
+                        <CircularProgress size='25px' color='inherit' />
+                      </Stack>
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
+                        color='primary'
+                        onClick={problemExecuteHandler}
+                      >
+                        <Stack direction={'row'} alignItems='center' spacing={2}>
+                          <PlayArrowIcon fontSize='small' />
+                          <Typography variant='body2'>Run</Typography>
+                        </Stack>
+                      </Button>
+                      <Button
+                        sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
+                        onClick={problemSubmitHandler}
+                      >
+                        <Stack direction={'row'} alignItems='center' spacing={2}>
+                          <CloudUploadOutlinedIcon color='success' fontSize='small' />
+                          <Typography variant='body2'>Submit</Typography>
+                        </Stack>
+                      </Button>
+                    </>
+                  )}
                 </ButtonGroup>
               </div>
             </li>

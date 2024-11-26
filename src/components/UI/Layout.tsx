@@ -5,11 +5,28 @@ interface LayOutProps {
   children: React.ReactNode;
   className?: string;
   showFooter?: boolean;
+  problemSubmitHandler?: () => void;
+  problemExecuteHandler?: () => void;
+  executionLoading?: boolean;
+  submitionLoading?: boolean;
 }
-const Layout: FC<LayOutProps> = ({ children, className, showFooter = true }) => {
+const Layout: FC<LayOutProps> = ({
+  children,
+  className,
+  showFooter = true,
+  problemSubmitHandler = () => {},
+  problemExecuteHandler = () => {},
+  executionLoading = false,
+  submitionLoading = false,
+}) => {
   return (
     <>
-      <Navbar></Navbar>
+      <Navbar
+        executionLoading={executionLoading}
+        submitionLoading={submitionLoading}
+        problemExecuteHandler={problemExecuteHandler}
+        problemSubmitHandler={problemSubmitHandler}
+      ></Navbar>
       <main className={`${className ?? ''} tw-mx-2`}>{children}</main>
       {showFooter && <Footer />}
     </>
