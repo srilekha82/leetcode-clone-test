@@ -22,7 +22,8 @@ protectedapi.interceptors.response.use(
         await refreshToken();
         return protectedapi(originalRequest);
       } catch (error) {
-        window.location.href = '/signin';
+        console.log({error})
+        // window.location.href = '/signin';
         return Promise.reject(error);
       }
     }

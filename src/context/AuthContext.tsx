@@ -19,7 +19,8 @@ export const AuthContextWrapper: FC<contextWrapperProps> = ({ children }) => {
   useEffect(() => {
     if (sessionLoading === 'Completed') {
       if (!user) {
-        window.location.href = '/signin';
+        console.log({sessionLoading})
+        // window.location.href = '/signin';
       } else {
         signIn();
       }
