@@ -102,7 +102,6 @@ export default function Navbar({
                   size='medium'
                   variant='text'
                   aria-label='Basic button group'
-                  
                 >
                   <Button
                     sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}

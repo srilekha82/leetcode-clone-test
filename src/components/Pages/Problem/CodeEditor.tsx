@@ -10,7 +10,7 @@ const CodeEditor: React.FC<{
   return (
     <Editor
       theme={theme}
-      language={language}
+      language={language === 'c#' ? 'csharp' : language === 'c++' ? 'cpp' : language}
       value={code}
       className='tw-max-h-full tw-overflow-x-auto tw-max-w-dvw'
       onMount={onMount}

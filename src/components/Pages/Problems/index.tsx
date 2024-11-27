@@ -91,7 +91,7 @@ export default function ProblemsSet() {
         if (filterValue === 'all') {
           return row;
         }
-        const column=columnId.toLowerCase()
+        const column = columnId.toLowerCase();
         const value = filterValue ? row.original[column] === filterValue : row.original[column];
         return value;
       },
