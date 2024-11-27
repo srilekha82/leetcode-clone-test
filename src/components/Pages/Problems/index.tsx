@@ -1,5 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
-import getProblems from '../../../services/getProblems';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useMemo, useState } from 'react';
@@ -20,21 +18,21 @@ import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import { useUserSlice } from '../../../store/user';
 import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
 import { capitalize, SelectChangeEvent } from '@mui/material';
+import { useAuthContext } from '../../../context/AuthContext';
+import { useProblemSlice } from '../../../store/problemSlice/problem';
 
 export default function ProblemsSet() {
   const [open, setOpen] = useState<boolean>(true);
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const { isError, isLoading, error } = useAuthContext();
+  const problems = useProblemSlice((state) => state.problems);
 
   const handleClose = () => {
     setOpen(false);
   };
   const columnHelper = createColumnHelper<Problem>();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['problems'],
-    queryFn: getProblems,
-  });
 
   const user = useUserSlice((state) => state.user);
 
@@ -79,7 +77,7 @@ export default function ProblemsSet() {
   );
 
   const table = useReactTable({
-    data: data?.data ?? [],
+    data: problems ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -135,7 +133,7 @@ export default function ProblemsSet() {
   }
 
   if (isError) {
-    return <p>{error.message}</p>;
+    return <p>{error?.message}</p>;
   }
 
   return (
@@ -146,7 +144,7 @@ export default function ProblemsSet() {
         statusFilter={statusFilter}
         handleDifficultChange={handleDifficultyChange}
         table={table}
-        data={data?.data as Problem[]}
+        data={problems}
       />
     </>
   );

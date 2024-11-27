@@ -4,7 +4,11 @@ export interface themeContext {
   toggleColorMode: () => void;
   colorMode: 'light' | 'dark';
 }
-export interface authCtx {}
+export interface authCtx {
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+}
 export interface contextWrapperProps {
   children: ReactNode;
 }

@@ -15,8 +15,6 @@ import { Container, SelectChangeEvent } from '@mui/material';
 import { Table as TableType } from '@tanstack/react-table';
 import DifficultyFilter from './DifficultyFilter';
 import StatusFilter from './StatusFilter';
-import { useEffect } from 'react';
-import { useProblemSlice } from '../../../store/problemSlice/problem';
 
 function ProblemsTable({
   data,
@@ -34,12 +32,6 @@ function ProblemsTable({
   handleStatusChange: (event: SelectChangeEvent) => void;
 }) {
   const { colorMode } = usethemeUtils();
-  const { setProblems } = useProblemSlice();
-  useEffect(() => {
-    if (data.length) {
-      setProblems(data.map((p) => ({ title: p.title, difficulty: p.difficulty, _id: p._id })));
-    }
-  }, [data]);
 
   const StyledTableRow = styled(TableRow)(() => ({
     '&:nth-of-type(odd)': {

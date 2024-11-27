@@ -77,7 +77,7 @@ export default function Navbar({
         <ul
           className={`tw-container-md tw-flex ${location.pathname.includes('/problems/') ? 'tw-justify-between' : 'tw-justify-evenly'} tw-mx-2 tw-items-center tw-list-none`}
         >
-          <li className='tw-p-1 tw-flex tw-items-center tw-gap-2 '>
+          <li className='tw-p-1 tw-flex tw-items-center tw-gap-6 '>
             <Link to='/' component={ReactLink} underline='hover'>
               {location.pathname.includes('/problems/') ? (
                 <img
@@ -102,6 +102,7 @@ export default function Navbar({
                   size='medium'
                   variant='text'
                   aria-label='Basic button group'
+                  
                 >
                   <Button
                     sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}

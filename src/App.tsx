@@ -17,6 +17,7 @@ function App() {
           <ThemeWrapper>
             {/* <ReactQueryDevtools initialIsOpen={false} position='left' /> */}
             <Toaster />
+
             <RouterProvider router={router}></RouterProvider>
           </ThemeWrapper>
         </AuthContextWrapper>

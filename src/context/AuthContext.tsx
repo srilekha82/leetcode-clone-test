@@ -2,8 +2,11 @@ import { createContext, FC, useContext, useEffect } from 'react';
 import { authCtx, contextWrapperProps } from '../utils/types';
 import { useAuthSlice } from '../store/authslice/auth';
 import { useUserSlice } from '../store/user';
+import { useProblemSlice } from '../store/problemSlice/problem';
+import { useQuery } from '@tanstack/react-query';
+import getProblems from '../services/getProblems';
 
-export const AuthContext = createContext<authCtx>({});
+export const AuthContext = createContext<authCtx>({ isLoading: false, isError: false, error: null });
 
 export const useAuthContext = () => {
   const ctx = useContext(AuthContext);
@@ -19,17 +22,27 @@ export const AuthContextWrapper: FC<contextWrapperProps> = ({ children }) => {
   useEffect(() => {
     if (sessionLoading === 'Completed') {
       if (!user) {
-        window.location.href = '/signin';
+        // window.location.href = '/signin';
       } else {
         signIn();
       }
     }
   }, [sessionLoading]);
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['problems'],
+    queryFn: getProblems,
+  });
+  const { setProblems } = useProblemSlice();
+  useEffect(() => {
+    if (data && data.data) {
+      setProblems(data.data);
+    }
+  }, [data]);
   useEffect(() => {
     if (!['/signin', '/signup'].includes(window.location.pathname)) {
       checkSession();
     }
   }, []);
 
-  return <AuthContext.Provider value={{}}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ isLoading, isError, error }}>{children}</AuthContext.Provider>;
 };
