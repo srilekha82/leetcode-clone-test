@@ -12,12 +12,7 @@ import { darktheme, lighttheme, supportedLanguages, theme } from '../../../const
 import { useAuthSlice } from '../../../store/authslice/auth';
 import submitCode from '../../../services/sumbitCode';
 import getStatus from '../../../services/getSubmissionStatus';
-import transformInput, {
-  a11yProps,
-  getGridColumnStyles,
-  getGridTemplateColumns,
-  getResult,
-} from '../../../utils/helpers';
+import { a11yProps, getGridColumnStyles, getGridTemplateColumns, getResult } from '../../../utils/helpers';
 import CustomTabPanel from '../../UI/TabPanel';
 import { Problem as ProblemType, problemsubmissionstatus, submission, user } from '../../../utils/types';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
@@ -103,11 +98,11 @@ export default function Problem() {
     try {
       (async () => {
         setIsProblemLoading(true);
-        const problemResponse = await getProblem(problemname?.slice(0, problemname.length - 1) as string);
+        const problemResponse = await getProblem(problemname?.slice(0, 24) as string);
         setIsProblemLoading(false);
         if (problemResponse?.status === 'Success') {
           setProblemInfo(problemResponse.data);
-          const storedCode = localStorage.getItem(`${problemname?.slice(0, problemname.length - 1)}`);
+          const storedCode = localStorage.getItem(`${problemname?.slice(0, 24)}`);
           if (storedCode) {
             const parsedCode = JSON.parse(storedCode);
             setCode(parsedCode);
@@ -245,19 +240,19 @@ export default function Problem() {
     }
 
     if (editorRef.current && problemInfo) {
-      const output = problemInfo?.sampleOutput ?? '';
       // @ts-ignore
       const code = `${problemInfo.imports.find((s) => s.lang_id == langauge)?.code} \n${editorRef.current.getValue()} \n${problemInfo?.systemCode.find((s) => s.lang_id == langauge)?.code}`;
       try {
-        const input = transformInput(
-          problemInfo?.sampleInput as string,
-          problemInfo?.metadata.judge_input_template as string,
-          problemInfo?.metadata.variables_names as Record<string, string>,
-          problemInfo?.metadata.variables_types as Record<string, string>
-        );
         setIsSumbitted(true);
         setCurrentTab(1);
-        const response = await mutateAsync({ code, expected_output: output, input, language_id: langauge });
+        const testcases = problemInfo?.testCases;
+        const [firsttestcase] = testcases;
+        const response = await mutateAsync({
+          code,
+          expected_output: firsttestcase.output,
+          input: firsttestcase.input,
+          language_id: langauge,
+        });
         setSubmissionId(response?.data.token);
         await getSubmission(response?.data.token);
       } catch (error) {
@@ -453,10 +448,7 @@ export default function Problem() {
             </div>
           </div>
           <CustomTabPanel value={leftTab} index={0}>
-            <ProblemDescription
-              problem={problemInfo}
-              serialNo={problemname?.slice(problemname.length - 1)}
-            ></ProblemDescription>
+            <ProblemDescription problem={problemInfo} serialNo={problemname?.slice(24)}></ProblemDescription>
           </CustomTabPanel>
           <CustomTabPanel value={leftTab} index={1}>
             {problemsubmissions.length ? <ProblemSubmissions data={problemsubmissions}></ProblemSubmissions> : null}
