@@ -39,31 +39,27 @@ export default function Navbar({
   const [openDrawer, toggleDrawerVisiblility] = useReducer((state) => !state, false);
 
   const problemNextPageHandler = useCallback(() => {
-    const currentProblemIndex = problems.findIndex(
-      (p) => p._id === (problemname?.slice(0, problemname.length - 1) as string)
-    );
+    const currentProblemIndex = problems.findIndex((p) => p._id === (problemname?.slice(0, 24) as string));
     if (currentProblemIndex === problems.length - 1) {
       navigate(`/problems/${problems[0]._id}1`);
     } else {
       const previousProblem = problems[currentProblemIndex + 1];
       navigate(`/problems/${previousProblem._id}${currentProblemIndex + 2}`);
     }
-  }, [problems]);
+  }, [problems.length]);
   const toggleDrawer = () => {
     toggleDrawerVisiblility();
   };
 
   const problemPreviousPage = useCallback(() => {
-    const currentProblemIndex = problems.findIndex(
-      (p) => p._id === (problemname?.slice(0, problemname.length - 1) as string)
-    );
+    const currentProblemIndex = problems.findIndex((p) => p._id === (problemname?.slice(0, 24) as string));
     if (currentProblemIndex === 0) {
       navigate(`/problems/${problems[problems.length - 1]._id}${problems.length}`);
     } else {
       const previousProblem = problems[currentProblemIndex - 1];
       navigate(`/problems/${previousProblem._id}${currentProblemIndex}`);
     }
-  }, [problems]);
+  }, [problems.length]);
 
   const randomProblemHandler = useCallback(() => {
     const randomIndex = getRandomIndex(problems.length);

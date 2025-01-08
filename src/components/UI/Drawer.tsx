@@ -35,7 +35,7 @@ export default function CustomDrawer({
   return (
     <Drawer
       PaperProps={{
-        sx: { width: '30%', backgroundColor: 'background.default',scrollbarWidth:'thin' },
+        sx: { width: '30%', backgroundColor: 'background.default', scrollbarWidth: 'thin' },
       }}
       open={open}
       onClose={() => toggleDrawer()}

@@ -31,6 +31,7 @@ export const AuthContextWrapper: FC<contextWrapperProps> = ({ children }) => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['problems'],
     queryFn: getProblems,
+    refetchOnWindowFocus: false,
   });
   const { setProblems } = useProblemSlice();
   useEffect(() => {

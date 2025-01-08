@@ -123,9 +123,7 @@ export default function Problem() {
   }, [problemname]);
   useEffect(() => {
     if (user?.submissions.length) {
-      setProblemSubmissions(
-        user?.submissions.filter((sub) => sub.problemId === problemname?.slice(0, problemname.length - 1))
-      );
+      setProblemSubmissions(user?.submissions.filter((sub) => sub.problemId === problemname?.slice(0, 24)));
     }
   }, [user?.submissions.length, problemname]);
   useEffect(() => {
@@ -303,7 +301,7 @@ export default function Problem() {
           setProblemSubmissionStatus('Rejected');
         }
         const updatesubmissionbody = {
-          problemId: problemname?.slice(0, problemname.length - 1) as string,
+          problemId: problemname?.slice(0, 24) as string,
           languageId: langauge,
           status: status ? 'Accepted' : 'Wrong Answer',
           submissionId: submissionId,
@@ -319,7 +317,7 @@ export default function Problem() {
           submissions: [
             ...(user?.submissions ?? []),
             {
-              problemId: problemname?.slice(0, problemname.length - 1) as string,
+              problemId: problemname?.slice(0, 24) as string,
               submissionId: submissionupdateResponse?.data._id as string,
               languageId: langauge,
               status: status ? 'Accepted' : 'Wrong Answer',
@@ -333,7 +331,7 @@ export default function Problem() {
         await updateSubmitMutateAsync({
           id: user?._id as string,
           newsubmission: {
-            problemId: problemname?.slice(0, problemname.length - 1) as string,
+            problemId: problemname?.slice(0, 24) as string,
             languageId: langauge,
             status: 'Wrong Answer',
             submissionId: submissionId,
@@ -343,7 +341,7 @@ export default function Problem() {
         setProblemSubmissions((prev) => [
           ...prev,
           {
-            problemId: problemname?.slice(0, problemname.length - 1) as string,
+            problemId: problemname?.slice(0, 24) as string,
             languageId: langauge,
             status: 'Wrong Answer',
             submissionId: submissionId,
@@ -534,11 +532,11 @@ export default function Problem() {
                   editorRef.current = editor;
                 }}
                 onChange={(changedcode) => {
-                  const storedCode = localStorage.getItem(`${problemname?.slice(0, problemname.length - 1)}`);
+                  const storedCode = localStorage.getItem(`${problemname?.slice(0, 24)}`);
                   let cachecode = JSON.parse(storedCode ?? `{}`);
                   if (changedcode) {
                     localStorage.setItem(
-                      `${problemname?.slice(0, problemname.length - 1)}`,
+                      `${problemname?.slice(0, 24)}`,
                       JSON.stringify({
                         ...cachecode,
                         [langauge]: changedcode,
