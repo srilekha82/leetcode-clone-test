@@ -11,10 +11,12 @@ import { Problem } from '../../../utils/types';
 import TablePaginationActions from './ProblemTableActions';
 import { styled } from '@mui/material/styles';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
-import { Container, SelectChangeEvent } from '@mui/material';
+import { Container, IconButton, SelectChangeEvent } from '@mui/material';
 import { Table as TableType } from '@tanstack/react-table';
 import DifficultyFilter from './DifficultyFilter';
 import StatusFilter from './StatusFilter';
+import ProblemSearch from './ProblemSearch';
+import RestartAltOutlinedIcon from '@mui/icons-material/RestartAltOutlined';
 
 function ProblemsTable({
   data,
@@ -23,13 +25,21 @@ function ProblemsTable({
   difficultyFilter,
   statusFilter,
   handleStatusChange,
+  searchQuery,
+  handleQueryChange,
+  clear,
+  reset,
 }: {
   data: Problem[];
   table: TableType<Problem>;
   handleDifficultChange: (event: SelectChangeEvent) => void;
   difficultyFilter: string;
   statusFilter: string;
+  searchQuery: string;
   handleStatusChange: (event: SelectChangeEvent) => void;
+  handleQueryChange: (queryvalue: string) => void;
+  clear: () => void;
+  reset: () => void;
 }) {
   const { colorMode } = usethemeUtils();
 
@@ -46,9 +56,19 @@ function ProblemsTable({
 
   return (
     <Container maxWidth='lg' sx={{ maxHeight: '75dvh', overflowY: 'auto', scrollbarWidth: 'thin' }}>
-      <div className='tw-flex'>
-        <DifficultyFilter value={difficultyFilter} handleChange={handleDifficultChange}></DifficultyFilter>
-        <StatusFilter value={statusFilter} handleChange={handleStatusChange}></StatusFilter>
+      <div className='tw-flex tw-justify-between'>
+        <div className='tw-flex'>
+          <DifficultyFilter value={difficultyFilter} handleChange={handleDifficultChange}></DifficultyFilter>
+          <StatusFilter value={statusFilter} handleChange={handleStatusChange}></StatusFilter>
+        </div>
+        <div className='tw-flex'>
+          <ProblemSearch clear={clear} queryvalue={searchQuery} onChangeHandler={handleQueryChange} />
+          <div className='tw-flex tw-justify-center tw-items-center'>
+            <IconButton title='reset' size='small' onClick={reset}>
+              <RestartAltOutlinedIcon />
+            </IconButton>
+          </div>
+        </div>
       </div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650, maxHeight: '75dvh', overflowY: 'auto' }} aria-label='simple table'>

@@ -33,11 +33,11 @@ export const getGridColumnStyles = (
   isThisPanelShrunk: boolean
 ) => {
   if (isPanelExpanded || isOtherPanelShrunk) {
-    return '1 / -1'; 
+    return '1 / -1';
   } else if (isThisPanelShrunk) {
-    return 'auto'; 
+    return 'auto';
   }
-  return 'auto'; 
+  return 'auto';
 };
 
 export const getRandomIndex = (length: number) => {

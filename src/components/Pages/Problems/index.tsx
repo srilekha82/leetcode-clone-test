@@ -1,6 +1,6 @@
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Problem } from '../../../utils/types';
 import {
   createColumnHelper,
@@ -20,14 +20,16 @@ import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
 import { capitalize, SelectChangeEvent } from '@mui/material';
 import { useAuthContext } from '../../../context/AuthContext';
 import { useProblemSlice } from '../../../store/problemSlice/problem';
+import useDebounce from '../../../hooks/useDebounce';
 
 export default function ProblemsSet() {
   const [open, setOpen] = useState<boolean>(true);
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const { isError, isLoading, error } = useAuthContext();
   const problems = useProblemSlice((state) => state.problems);
-
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const handleClose = () => {
     setOpen(false);
   };
@@ -64,6 +66,7 @@ export default function ProblemsSet() {
             </Link>
           );
         },
+        filterFn: 'titleFilter' as any,
       }),
       columnHelper.accessor((row) => row.difficulty, {
         id: 'Difficulty',
@@ -95,8 +98,13 @@ export default function ProblemsSet() {
         const value = filterValue ? row.original[column] === filterValue : row.original[column];
         return value;
       },
+      titleFilter: (row, columnId, filterValue) => {
+        const column = columnId.toLowerCase();
+        console.log(row.original[column], filterValue);
+        const value = row.original[column].toLowerCase().includes(filterValue.toLowerCase());
+        return value;
+      },
       statusFilter: (row, _columnId, filterValue) => {
-        console.log(row.original._id, filterValue);
         const acceptedProblems = [
           ...new Set(user?.submissions.filter((s) => s.status === 'Accepted').map((s) => s.problemId)),
         ];
@@ -123,6 +131,15 @@ export default function ProblemsSet() {
     setStatusFilter(event.target.value);
     table.getColumn('Status')?.setFilterValue(event.target.value);
   };
+
+  const handleQueryChange = (queryvalue: string) => {
+    setSearchQuery(queryvalue);
+  };
+
+  useEffect(() => {
+    table.getColumn('Title')?.setFilterValue(debouncedSearchQuery);
+  }, [debouncedSearchQuery]);
+
   if (isLoading) {
     return (
       <>
@@ -146,6 +163,18 @@ export default function ProblemsSet() {
         handleDifficultChange={handleDifficultyChange}
         table={table}
         data={problems}
+        searchQuery={searchQuery}
+        handleQueryChange={handleQueryChange}
+        clear={() => {
+          setSearchQuery('');
+        }}
+        reset={() => {
+          setSearchQuery('');
+          setStatusFilter('all');
+          setDifficultyFilter('all');
+          table.getColumn('Difficulty')?.setFilterValue('all');
+          table.getColumn('Status')?.setFilterValue('all');
+        }}
       />
     </>
   );

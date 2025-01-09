@@ -62,6 +62,7 @@ export default function Problem() {
   const [code, setCode] = useState<Record<string, string>>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
   const [isLeftPanelExpanded, toggleLeftPanelExpansion] = useReducer((state) => {
     if (state && editorRef.current) {
       // @ts-ignore
@@ -93,6 +94,10 @@ export default function Problem() {
       return { div1: constrainedPercentage, div2: Math.floor((200 - constrainedPercentage) / 2) };
     },
   });
+
+  useEffect(() => {
+    setCurrentTab(0);
+  }, [problemname]);
 
   useEffect(() => {
     try {
