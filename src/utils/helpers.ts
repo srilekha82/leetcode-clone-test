@@ -49,3 +49,23 @@ export const getGridTemplateColumns = (size1: number, size2: number) => {
   const floredSizeTwp = Math.floor(size2);
   return `${halfSize - 1}% ${100 - (halfSize + floredSizeTwp) + 2}% ${floredSizeTwp - 1}%`;
 };
+export function getProblemWindow(currentProblemIndex: number, totalProblems: number, windowSize = 15) {
+  if (currentProblemIndex === 0) {
+    return { start: 0, end: 14 };
+  }
+  const beforeCount = Math.floor(windowSize / 2);
+  const afterCount = windowSize - beforeCount - 1;
+
+  let start = Math.max(currentProblemIndex - beforeCount, 1);
+  let end = Math.min(currentProblemIndex + afterCount, totalProblems);
+
+  // Adjust window if at edges
+  if (start === 1) {
+    end = Math.min(windowSize, totalProblems);
+  }
+  if (end === totalProblems) {
+    start = Math.max(1, totalProblems - windowSize + 1);
+  }
+
+  return { start, end };
+}

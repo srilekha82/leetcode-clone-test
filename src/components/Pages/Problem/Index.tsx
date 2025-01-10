@@ -32,6 +32,7 @@ import ProblemResults from './ProblemResults';
 import ProblemSubmissionStatus from './ProblemSubmissionStatus';
 import useResizePanel from '../../../hooks/useResizePanel';
 import useShrinkState from '../../../hooks/useShrinkState';
+import { useCodeStorage } from '../../../db';
 
 export default function Problem() {
   const { problemname } = useParams();
@@ -40,7 +41,7 @@ export default function Problem() {
   const setUser = useUserSlice((state) => state.setUser);
   const { colorMode } = usethemeUtils();
   const [open, setOpen] = useState<boolean>(true);
-  const [langauge, setLangauge] = useState<number>(93);
+  const [langauge, setLangauge] = useState<number>(user?.favoriteProgrammingLanguage ?? 93);
   const isLogedIn = useAuthSlice((state) => state.isLogedIn);
   const [submissionId, setSubmissionId] = useState<string>('');
   const [currentTab, setCurrentTab] = useState<number>(0);
@@ -70,7 +71,9 @@ export default function Problem() {
     }
     return !state;
   }, false);
+
   const [isRightPanelExpanded, toggleRightPanelExpansion] = useReducer((state) => !state, false);
+
   const {
     expandLeftPanel,
     expandRightPanel,
@@ -81,6 +84,7 @@ export default function Problem() {
     isRightPanelOnlyShrinked,
     shrinkState,
   } = useShrinkState({ isLeftPanelExpanded, isRightPanelExpanded });
+
   const { startDragging, sizes } = useResizePanel({
     initialSize: { div1: 100, div2: 50 },
     containerRef,
@@ -95,6 +99,8 @@ export default function Problem() {
     },
   });
 
+  const { saveUserCode, getUserCode } = useCodeStorage();
+
   useEffect(() => {
     setCurrentTab(0);
   }, [problemname]);
@@ -107,10 +113,9 @@ export default function Problem() {
         setIsProblemLoading(false);
         if (problemResponse?.status === 'Success') {
           setProblemInfo(problemResponse.data);
-          const storedCode = localStorage.getItem(`${problemname?.slice(0, 24)}`);
-          if (storedCode) {
-            const parsedCode = JSON.parse(storedCode);
-            setCode(parsedCode);
+          const storedCode = await getUserCode(problemname?.slice(0, 24) as string);
+          if (Object.keys(storedCode).length) {
+            setCode(storedCode);
           } else {
             setCode({ [langauge]: problemResponse.data?.starterCode.find((s) => s.lang_id == langauge)?.code ?? '' });
           }
@@ -536,17 +541,9 @@ export default function Problem() {
                 onMount={(editor) => {
                   editorRef.current = editor;
                 }}
-                onChange={(changedcode) => {
-                  const storedCode = localStorage.getItem(`${problemname?.slice(0, 24)}`);
-                  let cachecode = JSON.parse(storedCode ?? `{}`);
+                onChange={async (changedcode) => {
                   if (changedcode) {
-                    localStorage.setItem(
-                      `${problemname?.slice(0, 24)}`,
-                      JSON.stringify({
-                        ...cachecode,
-                        [langauge]: changedcode,
-                      })
-                    );
+                    await saveUserCode(problemname?.slice(0, 24) as string, langauge, changedcode as string);
                     setCode((prev) => {
                       const copy = { ...prev };
                       if (copy[langauge]) {

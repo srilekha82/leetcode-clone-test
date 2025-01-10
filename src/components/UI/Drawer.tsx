@@ -27,7 +27,7 @@ export default function CustomDrawer({
 }) {
   const navigate = useNavigate();
   const { problemname } = useParams();
-  const currentIndex = problemname?.slice(24);
+  const problemTitle = problemname?.slice(0, 24);
   const { colorMode } = usethemeUtils();
   const bgColor = colorMode === 'light' ? 'common.black' : 'common.white';
   const color = colorMode === 'light' ? 'common.white' : 'common.black';
@@ -48,31 +48,30 @@ export default function CustomDrawer({
       </Stack>
       <Divider />
       <List>
-        {currentIndex != undefined &&
-          problems.map((p, id) => {
-            return (
-              <ListItem
-                key={p._id}
-                disablePadding
-                sx={{
-                  gap: 2,
-                  backgroundColor: id + 1 === parseInt(currentIndex) ? bgColor : 'background.default',
-                  color: id + 1 === parseInt(currentIndex) ? color : colorMode === 'dark' ? 'common.white' : 'initial',
+        {problems.map((p, id) => {
+          return (
+            <ListItem
+              key={p._id}
+              disablePadding
+              sx={{
+                gap: 2,
+                backgroundColor: p._id === problemTitle ? bgColor : 'background.default',
+                color: p._id === problemTitle ? color : colorMode === 'dark' ? 'common.white' : 'initial',
+              }}
+            >
+              <ListItemButton
+                onClick={() => {
+                  navigate(`/problems/${p._id}${id + 1}`);
                 }}
               >
-                <ListItemButton
-                  onClick={() => {
-                    navigate(`/problems/${p._id}${id + 1}`);
-                  }}
-                >
-                  <ListItemText primary={<Typography variant='body2'>{p.title}</Typography>} />
-                  <Typography variant='body2' style={{ color: difficultyColors[p.difficulty] }}>
-                    {capitalize(p.difficulty)}
-                  </Typography>
-                </ListItemButton>
-              </ListItem>
-            );
-          })}
+                <ListItemText primary={<Typography variant='body2'>{p.title}</Typography>} />
+                <Typography variant='body2' style={{ color: difficultyColors[p.difficulty] }}>
+                  {capitalize(p.difficulty)}
+                </Typography>
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
       </List>
     </Drawer>
   );

@@ -15,7 +15,6 @@ import { useMutation } from '@tanstack/react-query';
 import signUp from '../../../services/signUp';
 import LanguageDropDown from '../Problem/LanguageDropDown';
 import { toast } from 'sonner';
-import { supportedLanguages } from '../../../constants/Index';
 
 export default function SignUpForm() {
   const [email, setEmail] = useState<string>('');
@@ -46,7 +45,7 @@ export default function SignUpForm() {
         username,
         email,
         password,
-        favoriteProgrammingLanguage: supportedLanguages[favoriteProgrammingLanguage],
+        favoriteProgrammingLanguage,
         roles: ['user'],
       });
       console.log({ response });

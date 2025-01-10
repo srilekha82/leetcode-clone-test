@@ -13,8 +13,8 @@ import ShuffleOutlinedIcon from '@mui/icons-material/ShuffleOutlined';
 import Profile from './Profile';
 import { ChevronRightOutlined, ChevronLeftOutlined } from '@mui/icons-material';
 import { useProblemSlice } from '../../store/problemSlice/problem';
-import { getRandomIndex } from '../../utils/helpers';
-import { useCallback, useReducer } from 'react';
+import { getProblemWindow, getRandomIndex } from '../../utils/helpers';
+import { useCallback, useMemo, useReducer } from 'react';
 import CustomDrawer from './Drawer';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
@@ -66,9 +66,15 @@ export default function Navbar({
     navigate(`/problems/${problems[randomIndex]._id}${randomIndex + 1}`);
   }, [problems]);
 
+  const problemsRange = useMemo(() => {
+    const currentProblemIndex = problems.findIndex((p) => p._id === (problemname?.slice(0, 24) as string));
+    const { start, end } = getProblemWindow(currentProblemIndex, problems.length);
+    return problems.slice(start, end);
+  }, [problems.length, problemname]);
+
   return (
     <>
-      {problems.length > 0 && <CustomDrawer problems={problems} open={openDrawer} toggleDrawer={toggleDrawer} />}
+      {problems.length > 0 && <CustomDrawer problems={problemsRange} open={openDrawer} toggleDrawer={toggleDrawer} />}
       <nav className='tw-border-b-[#ffffff24]'>
         <ul
           className={`tw-container-md tw-flex ${location.pathname.includes('/problems/') ? 'tw-justify-between' : 'tw-justify-evenly'} tw-mx-2 tw-items-center tw-list-none`}

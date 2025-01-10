@@ -97,7 +97,7 @@ export interface user {
   username: string;
   email: string;
   password: string;
-  favoriteProgrammingLanguage: string;
+  favoriteProgrammingLanguage: number;
   roles: string[];
   submissions: problemsubmission[];
 }
