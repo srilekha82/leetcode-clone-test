@@ -23,7 +23,7 @@ class CodeStorageDB {
       const request: IDBOpenDBRequest = indexedDB.open(this.dbName, this.version);
 
       request.onerror = (event: Event) => {
-        const {error} = (event.target as IDBOpenDBRequest);
+        const { error } = event.target as IDBOpenDBRequest;
         reject(error?.message || 'Error opening database');
       };
 
@@ -43,7 +43,7 @@ class CodeStorageDB {
 
   async saveCode(problemId: string, languageId: number, code: string): Promise<string> {
     if (!this.db) {
-        await this.initDB();
+      await this.initDB();
     }
 
     return new Promise((resolve, reject) => {
@@ -60,13 +60,13 @@ class CodeStorageDB {
 
         putRequest.onsuccess = () => resolve('Code saved successfully');
         putRequest.onerror = (event: Event) => {
-          const {error} = (event.target as IDBRequest);
+          const { error } = event.target as IDBRequest;
           reject(error?.message || 'Error saving code');
         };
       };
 
       getRequest.onerror = (event: Event) => {
-        const {error} = (event.target as IDBRequest);
+        const { error } = event.target as IDBRequest;
         reject(error?.message || 'Error reading existing solutions');
       };
     });
@@ -74,7 +74,7 @@ class CodeStorageDB {
 
   async getCode(problemId: string): Promise<Record<number, string>> {
     if (!this.db) {
-        await this.initDB();
+      await this.initDB();
     }
 
     return new Promise((resolve, reject) => {
@@ -88,7 +88,7 @@ class CodeStorageDB {
       };
 
       request.onerror = (event: Event) => {
-        const {error} = (event.target as IDBRequest);
+        const { error } = event.target as IDBRequest;
         reject(error?.message || 'Error retrieving code');
       };
     });
@@ -96,7 +96,7 @@ class CodeStorageDB {
 
   async getAllSolutions(problemId: string): Promise<CodeSolutions> {
     if (!this.db) {
-        await this.initDB();
+      await this.initDB();
     }
 
     return new Promise((resolve, reject) => {
@@ -109,7 +109,7 @@ class CodeStorageDB {
       };
 
       request.onerror = (event: Event) => {
-        const {error} = (event.target as IDBRequest);
+        const { error } = event.target as IDBRequest;
         reject(error?.message || 'Error retrieving solutions');
       };
     });
@@ -117,7 +117,7 @@ class CodeStorageDB {
 
   async deleteSolution(problemId: string, languageId: number): Promise<void> {
     if (!this.db) {
-        await this.initDB();
+      await this.initDB();
     }
 
     return new Promise((resolve, reject) => {
@@ -135,7 +135,7 @@ class CodeStorageDB {
 
         putRequest.onsuccess = () => resolve();
         putRequest.onerror = (event: Event) => {
-          const {error} = (event.target as IDBRequest);
+          const { error } = event.target as IDBRequest;
           reject(error?.message || 'Error deleting solution');
         };
       };

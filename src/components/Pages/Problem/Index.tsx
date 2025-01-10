@@ -33,6 +33,10 @@ import ProblemSubmissionStatus from './ProblemSubmissionStatus';
 import useResizePanel from '../../../hooks/useResizePanel';
 import useShrinkState from '../../../hooks/useShrinkState';
 import { useCodeStorage } from '../../../db';
+import OpenInFullOutlinedIcon from '@mui/icons-material/OpenInFullOutlined';
+// import CloseFullscreenOutlinedIcon from '@mui/icons-material/CloseFullscreenOutlined';
+import RestoreOutlinedIcon from '@mui/icons-material/RestoreOutlined';
+import useFullScreen from '../../../hooks/useFullScreen';
 
 export default function Problem() {
   const { problemname } = useParams();
@@ -63,6 +67,7 @@ export default function Problem() {
   const [code, setCode] = useState<Record<string, string>>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { isFullScreenEnabled, toggleFullScreen } = useFullScreen();
 
   const [isLeftPanelExpanded, toggleLeftPanelExpansion] = useReducer((state) => {
     if (state && editorRef.current) {
@@ -414,7 +419,7 @@ export default function Problem() {
                 expandRightPanel();
               }}
             >
-              <ChevronRightOutlinedIcon />
+              <ChevronRightOutlinedIcon fontSize='small' />
             </IconButton>
           </div>
         ) : null}
@@ -446,11 +451,19 @@ export default function Problem() {
                 }}
                 size='small'
               >
-                {!isRightPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
+                {!isRightPanelExpanded ? (
+                  <SettingsOverscanOutlinedIcon fontSize='small' />
+                ) : (
+                  <CloseFullscreenOutlinedIcon fontSize='small' />
+                )}
               </IconButton>
               {!isRightPanelExpanded && (
                 <IconButton onClick={shrinkRightHandler} size='small'>
-                  {!shrinkState.shrinkrightpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
+                  {!shrinkState.shrinkrightpanel ? (
+                    <ChevronLeftOutlinedIcon fontSize='small' />
+                  ) : (
+                    <ChevronRightOutlinedIcon fontSize='small' />
+                  )}
                 </IconButton>
               )}
             </div>
@@ -486,7 +499,7 @@ export default function Problem() {
               writingMode='vertical-lr'
             />
             <IconButton onClick={expandLeftPanel}>
-              <ChevronLeftOutlinedIcon />
+              <ChevronLeftOutlinedIcon fontSize='small' />
             </IconButton>
           </div>
         ) : null}
@@ -518,24 +531,52 @@ export default function Problem() {
             ></CustomTabs>
             <div>
               <IconButton onClick={toggleLeftPanelExpansion} size='small'>
-                {!isLeftPanelExpanded ? <SettingsOverscanOutlinedIcon /> : <CloseFullscreenOutlinedIcon />}
+                {!isLeftPanelExpanded ? (
+                  <SettingsOverscanOutlinedIcon fontSize='small' />
+                ) : (
+                  <CloseFullscreenOutlinedIcon fontSize='small' />
+                )}
               </IconButton>
               {!isLeftPanelExpanded && (
                 <IconButton onClick={shrinkLeftHandler} size='small'>
-                  {!shrinkState.shrinkleftpanel ? <ChevronLeftOutlinedIcon /> : <ChevronRightOutlinedIcon />}
+                  {!shrinkState.shrinkleftpanel ? (
+                    <ChevronLeftOutlinedIcon fontSize='small' />
+                  ) : (
+                    <ChevronRightOutlinedIcon fontSize='small' />
+                  )}
                 </IconButton>
               )}
             </div>
           </div>
           <CustomTabPanel innerDivClassName='tw-h-full' value={currentTab} index={0}>
             <div className='tw-h-[73dvh]'>
-              <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12]'>
+              <div className='tw-border-b-2 tw-p-2 tw-border-b-[#ffffff12] tw-flex tw-justify-between tw-items-center'>
                 <LanguageDropDown
                   languagestoskip={problemInfo?.languagestoskip ?? ([] as number[])}
                   label='supported language'
                   language={langauge}
                   handleChange={handleChange}
                 />
+                <div>
+                  <IconButton onClick={() => toggleFullScreen()} size='small'>
+                    {isFullScreenEnabled ? (
+                      <CloseFullscreenOutlinedIcon fontSize='small' />
+                    ) : (
+                      <OpenInFullOutlinedIcon fontSize='small' />
+                    )}
+                  </IconButton>
+                  <IconButton
+                    size='small'
+                    onClick={() => {
+                      setCode((prev) => ({
+                        ...prev,
+                        [langauge]: problemInfo?.starterCode.find((s) => s.lang_id == langauge)?.code ?? '',
+                      }));
+                    }}
+                  >
+                    <RestoreOutlinedIcon fontSize='small' />
+                  </IconButton>
+                </div>
               </div>
               <CodeEditor
                 onMount={(editor) => {
@@ -590,6 +631,7 @@ export default function Problem() {
                           <FiberManualRecordIcon
                             color={s.status.description === 'Accepted' ? 'success' : 'error'}
                             sx={{ fontSize: '0.7em' }}
+                            fontSize='small'
                           />
                           <span>{`Case ${i + 1}`}</span>
                         </div>

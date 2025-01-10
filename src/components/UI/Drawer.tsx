@@ -42,8 +42,8 @@ export default function CustomDrawer({
     >
       <Stack margin={2} flexDirection='row' justifyContent='space-between' alignItems='center'>
         <Typography variant='subtitle1'>Problems List</Typography>
-        <IconButton onClick={() => toggleDrawer()}>
-          <CloseOutlinedIcon />
+        <IconButton size='small' onClick={() => toggleDrawer()}>
+          <CloseOutlinedIcon fontSize='small' />
         </IconButton>
       </Stack>
       <Divider />

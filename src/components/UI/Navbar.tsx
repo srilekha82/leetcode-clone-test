@@ -72,6 +72,8 @@ export default function Navbar({
     return problems.slice(start, end);
   }, [problems.length, problemname]);
 
+  const colorStyles = useMemo(() => ({ color: colorMode === 'dark' ? 'common.white' : 'common.black' }), [colorMode]);
+
   return (
     <>
       {problems.length > 0 && <CustomDrawer problems={problemsRange} open={openDrawer} toggleDrawer={toggleDrawer} />}
@@ -105,43 +107,22 @@ export default function Navbar({
                   variant='text'
                   aria-label='Basic button group'
                 >
-                  <Button
-                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
-                    onClick={() => toggleDrawerVisiblility()}
-                  >
+                  <Button sx={colorStyles} onClick={() => toggleDrawerVisiblility()}>
                     <Stack gap='2' alignItems='center' flexDirection='row'>
                       <span>
-                        <DoubleArrowOutlinedIcon
-                          sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
-                        />
+                        <DoubleArrowOutlinedIcon sx={colorStyles} fontSize='small' />
                       </span>
                       <Typography variant='body2'>Problem List</Typography>
                     </Stack>
                   </Button>
-                  <Button
-                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
-                    size='small'
-                    onClick={problemPreviousPage}
-                  >
-                    <ChevronLeftOutlined
-                      sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
-                    ></ChevronLeftOutlined>
+                  <Button sx={colorStyles} size='small' onClick={problemPreviousPage}>
+                    <ChevronLeftOutlined sx={colorStyles} fontSize='small'></ChevronLeftOutlined>
                   </Button>
-                  <Button
-                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
-                    size='small'
-                    onClick={problemNextPageHandler}
-                  >
-                    <ChevronRightOutlined
-                      sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
-                    ></ChevronRightOutlined>
+                  <Button sx={colorStyles} size='small' onClick={problemNextPageHandler}>
+                    <ChevronRightOutlined sx={colorStyles} fontSize='small'></ChevronRightOutlined>
                   </Button>
-                  <Button
-                    sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
-                    size='small'
-                    onClick={randomProblemHandler}
-                  >
-                    <ShuffleOutlinedIcon sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }} />
+                  <Button sx={colorStyles} size='small' onClick={randomProblemHandler}>
+                    <ShuffleOutlinedIcon sx={colorStyles} fontSize='small' />
                   </Button>
                 </ButtonGroup>
               </div>
@@ -157,7 +138,7 @@ export default function Navbar({
                   aria-label='Basic button group'
                 >
                   {executionLoading || submitionLoading ? (
-                    <Button variant='outlined' sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}>
+                    <Button variant='outlined' sx={colorStyles}>
                       <Stack direction={'row'} alignItems='center' spacing={2}>
                         <Typography variant='body2'> Pending</Typography>
                         <CircularProgress size='25px' color='inherit' />
@@ -165,20 +146,13 @@ export default function Navbar({
                     </Button>
                   ) : (
                     <>
-                      <Button
-                        sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
-                        color='primary'
-                        onClick={problemExecuteHandler}
-                      >
+                      <Button sx={colorStyles} color='primary' onClick={problemExecuteHandler}>
                         <Stack direction={'row'} alignItems='center' spacing={2}>
                           <PlayArrowIcon fontSize='small' />
                           <Typography variant='body2'>Run</Typography>
                         </Stack>
                       </Button>
-                      <Button
-                        sx={{ color: colorMode === 'dark' ? 'common.white' : 'common.black' }}
-                        onClick={problemSubmitHandler}
-                      >
+                      <Button sx={colorStyles} onClick={problemSubmitHandler}>
                         <Stack direction={'row'} alignItems='center' spacing={2}>
                           <CloudUploadOutlinedIcon color='success' fontSize='small' />
                           <Typography variant='body2'>Submit</Typography>
