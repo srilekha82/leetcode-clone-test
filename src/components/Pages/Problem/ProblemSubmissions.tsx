@@ -53,6 +53,11 @@ export default function ProblemSubmissions({ data }: { data: problemsubmissionst
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 5,
+      },
+    },
   });
   const { colorMode } = usethemeUtils();
 
@@ -69,8 +74,8 @@ export default function ProblemSubmissions({ data }: { data: problemsubmissionst
 
   return (
     <>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650, maxHeight: '75dvh', overflowY: 'auto' }} aria-label='simple table'>
+      <TableContainer className='tw-max-h-[70dvh] tw-overscroll-y-auto' component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label='simple table'>
           <TableHead>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

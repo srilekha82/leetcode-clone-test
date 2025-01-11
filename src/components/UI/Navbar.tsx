@@ -107,7 +107,7 @@ export default function Navbar({
                   variant='text'
                   aria-label='Basic button group'
                 >
-                  <Button sx={colorStyles} onClick={() => toggleDrawerVisiblility()}>
+                  <Button title='Expand Panel' sx={colorStyles} onClick={() => toggleDrawerVisiblility()}>
                     <Stack gap='2' alignItems='center' flexDirection='row'>
                       <span>
                         <DoubleArrowOutlinedIcon sx={colorStyles} fontSize='small' />
@@ -115,13 +115,13 @@ export default function Navbar({
                       <Typography variant='body2'>Problem List</Typography>
                     </Stack>
                   </Button>
-                  <Button sx={colorStyles} size='small' onClick={problemPreviousPage}>
+                  <Button sx={colorStyles} title='Prev Question' size='small' onClick={problemPreviousPage}>
                     <ChevronLeftOutlined sx={colorStyles} fontSize='small'></ChevronLeftOutlined>
                   </Button>
-                  <Button sx={colorStyles} size='small' onClick={problemNextPageHandler}>
+                  <Button sx={colorStyles} title='Next Question' size='small' onClick={problemNextPageHandler}>
                     <ChevronRightOutlined sx={colorStyles} fontSize='small'></ChevronRightOutlined>
                   </Button>
-                  <Button sx={colorStyles} size='small' onClick={randomProblemHandler}>
+                  <Button sx={colorStyles} title='Pick One' size='small' onClick={randomProblemHandler}>
                     <ShuffleOutlinedIcon sx={colorStyles} fontSize='small' />
                   </Button>
                 </ButtonGroup>

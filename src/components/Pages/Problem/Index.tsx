@@ -108,6 +108,8 @@ export default function Problem() {
 
   useEffect(() => {
     setCurrentTab(0);
+    setProblemSubmissionStatus('');
+    setSuccessCount(0);
   }, [problemname]);
 
   useEffect(() => {
@@ -146,9 +148,6 @@ export default function Problem() {
       monacoinstance.editor.defineTheme('mylightTheme', lighttheme as theme);
       monacoinstance.editor.defineTheme('mydarkTheme', darktheme as theme);
     });
-    return () => {
-      setProblemSubmissions([]);
-    };
   }, [colorMode]);
   const { mutateAsync } = useMutation({
     mutationKey: ['codesubmission'],
@@ -269,6 +268,7 @@ export default function Problem() {
         setSubmissionId(response?.data.token);
         await getSubmission(response?.data.token);
       } catch (error) {
+        setIsSumbitted(false);
         console.log(error);
       }
     }
@@ -413,6 +413,7 @@ export default function Problem() {
               orientation='vertical'
             ></CustomTabs>
             <IconButton
+              title='Unfold'
               onClick={() => {
                 // @ts-ignore
                 editorRef.current.layout(771, 436);
@@ -452,17 +453,17 @@ export default function Problem() {
                 size='small'
               >
                 {!isRightPanelExpanded ? (
-                  <SettingsOverscanOutlinedIcon fontSize='small' />
+                  <SettingsOverscanOutlinedIcon titleAccess='Maximise' fontSize='small' />
                 ) : (
-                  <CloseFullscreenOutlinedIcon fontSize='small' />
+                  <CloseFullscreenOutlinedIcon titleAccess='Minimise' fontSize='small' />
                 )}
               </IconButton>
               {!isRightPanelExpanded && (
                 <IconButton onClick={shrinkRightHandler} size='small'>
                   {!shrinkState.shrinkrightpanel ? (
-                    <ChevronLeftOutlinedIcon fontSize='small' />
+                    <ChevronLeftOutlinedIcon titleAccess='Fold' fontSize='small' />
                   ) : (
-                    <ChevronRightOutlinedIcon fontSize='small' />
+                    <ChevronRightOutlinedIcon titleAccess='UnFold' fontSize='small' />
                   )}
                 </IconButton>
               )}
@@ -499,7 +500,7 @@ export default function Problem() {
               writingMode='vertical-lr'
             />
             <IconButton onClick={expandLeftPanel}>
-              <ChevronLeftOutlinedIcon fontSize='small' />
+              <ChevronLeftOutlinedIcon titleAccess='Fold' fontSize='small' />
             </IconButton>
           </div>
         ) : null}
@@ -532,17 +533,17 @@ export default function Problem() {
             <div>
               <IconButton onClick={toggleLeftPanelExpansion} size='small'>
                 {!isLeftPanelExpanded ? (
-                  <SettingsOverscanOutlinedIcon fontSize='small' />
+                  <SettingsOverscanOutlinedIcon titleAccess='Maximise' fontSize='small' />
                 ) : (
-                  <CloseFullscreenOutlinedIcon fontSize='small' />
+                  <CloseFullscreenOutlinedIcon titleAccess='Minimise' fontSize='small' />
                 )}
               </IconButton>
               {!isLeftPanelExpanded && (
                 <IconButton onClick={shrinkLeftHandler} size='small'>
                   {!shrinkState.shrinkleftpanel ? (
-                    <ChevronLeftOutlinedIcon fontSize='small' />
+                    <ChevronLeftOutlinedIcon titleAccess='Fold' fontSize='small' />
                   ) : (
-                    <ChevronRightOutlinedIcon fontSize='small' />
+                    <ChevronRightOutlinedIcon titleAccess='UnFold' fontSize='small' />
                   )}
                 </IconButton>
               )}
@@ -560,9 +561,9 @@ export default function Problem() {
                 <div>
                   <IconButton onClick={() => toggleFullScreen()} size='small'>
                     {isFullScreenEnabled ? (
-                      <CloseFullscreenOutlinedIcon fontSize='small' />
+                      <CloseFullscreenOutlinedIcon titleAccess='Exit FullScreen' fontSize='small' />
                     ) : (
-                      <OpenInFullOutlinedIcon fontSize='small' />
+                      <OpenInFullOutlinedIcon titleAccess='FullScreen' fontSize='small' />
                     )}
                   </IconButton>
                   <IconButton
@@ -574,7 +575,7 @@ export default function Problem() {
                       }));
                     }}
                   >
-                    <RestoreOutlinedIcon fontSize='small' />
+                    <RestoreOutlinedIcon titleAccess='Restore' fontSize='small' />
                   </IconButton>
                 </div>
               </div>
