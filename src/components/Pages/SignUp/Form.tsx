@@ -37,8 +37,9 @@ export default function SignUpForm() {
   };
 
   async function handleSubmit() {
-    if (password != confirmPassword) {
-      toast.warning('Password Did Not Match', { position: 'bottom-left' });
+    if (password !== confirmPassword) {
+      toast.warning('Password Did Not Match', { position: 'bottom-left', duration: 2000, dismissible: true });
+      return;
     }
     try {
       const response = await mutateAsync({

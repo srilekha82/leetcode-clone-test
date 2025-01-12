@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import api from '../API/Index';
 import { createUser, signUpType } from '../utils/types';
 
@@ -9,9 +10,19 @@ const signUp = async (userinfo: createUser) => {
     }
     return response.data;
   } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(error.message);
+    let message = 'Some internal error occured';
+    let code = 500;
+
+    if (error instanceof AxiosError) {
+      message = error.response?.data.message || 'Server Unavailable';
+      code = error.response?.status || 503;
+      throw new Error(`Request Failed with ${code} : ${message}`);
     }
+
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    throw new Error(`Request Failed with ${code}:${message}`);
   }
 };
 

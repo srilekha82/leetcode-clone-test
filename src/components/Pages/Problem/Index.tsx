@@ -45,7 +45,7 @@ export default function Problem() {
   const setUser = useUserSlice((state) => state.setUser);
   const { colorMode } = usethemeUtils();
   const [open, setOpen] = useState<boolean>(true);
-  const [langauge, setLangauge] = useState<number>(user?.favoriteProgrammingLanguage ?? 93);
+  const [language, setLanguage] = useState<number>(user?.favoriteProgrammingLanguage ?? 93);
   const isLogedIn = useAuthSlice((state) => state.isLogedIn);
   const [submissionId, setSubmissionId] = useState<string>('');
   const [currentTab, setCurrentTab] = useState<number>(0);
@@ -124,7 +124,7 @@ export default function Problem() {
           if (Object.keys(storedCode).length) {
             setCode(storedCode);
           } else {
-            setCode({ [langauge]: problemResponse.data?.starterCode.find((s) => s.lang_id == langauge)?.code ?? '' });
+            setCode({ [language]: problemResponse.data?.starterCode.find((s) => s.lang_id == language)?.code ?? '' });
           }
         } else {
           throw new Error(problemResponse?.error);
@@ -164,7 +164,7 @@ export default function Problem() {
     setOpen(false);
   };
   const handleChange = (id: number) => {
-    setLangauge(id);
+    setLanguage(id);
     setCode((prev) => {
       const copy = { ...prev };
       if (!copy[id]) {
@@ -253,7 +253,7 @@ export default function Problem() {
 
     if (editorRef.current && problemInfo) {
       // @ts-ignore
-      const code = `${problemInfo.imports.find((s) => s.lang_id == langauge)?.code} \n${editorRef.current.getValue()} \n${problemInfo?.systemCode.find((s) => s.lang_id == langauge)?.code}`;
+      const code = `${problemInfo.imports.find((s) => s.lang_id == language)?.code} \n${editorRef.current.getValue()} \n${problemInfo?.systemCode.find((s) => s.lang_id == language)?.code}`;
       try {
         setIsSumbitted(true);
         setCurrentTab(1);
@@ -263,7 +263,7 @@ export default function Problem() {
           code,
           expected_output: firsttestcase.output,
           input: firsttestcase.input,
-          language_id: langauge,
+          language_id: language,
         });
         setSubmissionId(response?.data.token);
         await getSubmission(response?.data.token);
@@ -282,13 +282,13 @@ export default function Problem() {
       const submissionbatch = [];
       const testcases = problemInfo?.testCases;
       // @ts-ignore
-      const code = `${problemInfo.imports.find((s) => s.lang_id == langauge)?.code} \n ${editorRef.current.getValue()} \n ${problemInfo?.systemCode.find((s) => s.lang_id == langauge)?.code}`;
+      const code = `${problemInfo.imports.find((s) => s.lang_id == language)?.code} \n ${editorRef.current.getValue()} \n ${problemInfo?.systemCode.find((s) => s.lang_id == language)?.code}`;
       if (testcases?.length) {
         for (let index = 0; index < testcases?.length; index++) {
           if (testcases) {
             const { input, output } = testcases[index];
             submissionbatch.push({
-              language_id: langauge,
+              language_id: language,
               source_code: code,
               stdin: input,
               expected_output: output,
@@ -317,7 +317,7 @@ export default function Problem() {
         }
         const updatesubmissionbody = {
           problemId: problemname?.slice(0, 24) as string,
-          languageId: langauge,
+          languageId: language,
           status: status ? 'Accepted' : 'Wrong Answer',
           submissionId: submissionId,
           submittedAt: new Date(),
@@ -334,7 +334,7 @@ export default function Problem() {
             {
               problemId: problemname?.slice(0, 24) as string,
               submissionId: submissionupdateResponse?.data._id as string,
-              languageId: langauge,
+              languageId: language,
               status: status ? 'Accepted' : 'Wrong Answer',
               submittedAt: new Date(),
             },
@@ -347,7 +347,7 @@ export default function Problem() {
           id: user?._id as string,
           newsubmission: {
             problemId: problemname?.slice(0, 24) as string,
-            languageId: langauge,
+            languageId: language,
             status: 'Wrong Answer',
             submissionId: submissionId,
             submittedAt: new Date(),
@@ -357,7 +357,7 @@ export default function Problem() {
           ...prev,
           {
             problemId: problemname?.slice(0, 24) as string,
-            languageId: langauge,
+            languageId: language,
             status: 'Wrong Answer',
             submissionId: submissionId,
             submittedAt: new Date(),
@@ -555,7 +555,7 @@ export default function Problem() {
                 <LanguageDropDown
                   languagestoskip={problemInfo?.languagestoskip ?? ([] as number[])}
                   label='supported language'
-                  language={langauge}
+                  language={language}
                   handleChange={handleChange}
                 />
                 <div>
@@ -571,7 +571,7 @@ export default function Problem() {
                     onClick={() => {
                       setCode((prev) => ({
                         ...prev,
-                        [langauge]: problemInfo?.starterCode.find((s) => s.lang_id == langauge)?.code ?? '',
+                        [language]: problemInfo?.starterCode.find((s) => s.lang_id == language)?.code ?? '',
                       }));
                     }}
                   >
@@ -585,18 +585,18 @@ export default function Problem() {
                 }}
                 onChange={async (changedcode) => {
                   if (changedcode) {
-                    await saveUserCode(problemname?.slice(0, 24) as string, langauge, changedcode as string);
+                    await saveUserCode(problemname?.slice(0, 24) as string, language, changedcode as string);
                     setCode((prev) => {
                       const copy = { ...prev };
-                      if (copy[langauge]) {
-                        copy[langauge] = changedcode;
+                      if (copy[language]) {
+                        copy[language] = changedcode;
                       }
                       return copy;
                     });
                   }
                 }}
-                code={code[langauge]}
-                language={supportedLanguages[langauge].toLowerCase()}
+                code={code[language]}
+                language={supportedLanguages[language].toLowerCase()}
                 theme={colorMode === 'light' ? 'mylightTheme' : 'mydarkTheme'}
               ></CodeEditor>
             </div>
