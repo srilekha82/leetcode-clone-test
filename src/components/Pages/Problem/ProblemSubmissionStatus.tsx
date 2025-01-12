@@ -16,13 +16,15 @@ export default function ProblemSubmissionStatus({
   return (
     <Stack spacing={2} className='tw-h-[75dvh]' marginBlock={2} justifyContent='center'>
       <div className='tw-flex tw-justify-evenly tw-items-center'>
-        <Typography
-          fontWeight='bold'
-          color={problemSubmissionStatus === 'Accepted' ? 'success' : 'error'}
-          variant='subtitle2'
-        >
-          {problemSubmissionStatus}
-        </Typography>
+        {problemSubmissionStatus.trim() != '' && (
+          <Typography
+            fontWeight='bold'
+            color={problemSubmissionStatus === 'Accepted' ? 'success' : 'error'}
+            variant='subtitle2'
+          >
+            {problemSubmissionStatus}
+          </Typography>
+        )}
         <Typography>
           Passed Test Cases {successCount}/{totalTestCases}
         </Typography>

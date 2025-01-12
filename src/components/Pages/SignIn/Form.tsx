@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -16,6 +16,7 @@ import { useAuthSlice } from '../../../store/authslice/auth';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { toast } from 'sonner';
+import { usethemeUtils } from '../../../context/ThemeWrapper';
 
 export default function LoginForm() {
   const [email, setEmail] = useState<string>('');
@@ -24,6 +25,8 @@ export default function LoginForm() {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const signin = useAuthSlice((state) => state.signIn);
   const navigate = useNavigate();
+  const { colorMode } = usethemeUtils();
+
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
@@ -46,6 +49,7 @@ export default function LoginForm() {
       }
     }
   };
+  const colorStyles = useMemo(() => ({ color: colorMode === 'dark' ? 'common.white' : 'common.black' }), [colorMode]);
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <FormControl variant='outlined' size='small'>
@@ -57,10 +61,17 @@ export default function LoginForm() {
           label='E-mail'
           variant='outlined'
           size='small'
+          slotProps={{
+            inputLabel: {
+              color: colorStyles.color,
+            },
+          }}
         />
       </FormControl>
       <FormControl variant='outlined' size='small'>
-        <InputLabel htmlFor='outlined-adornment-password'>Password</InputLabel>
+        <InputLabel focused={false} htmlFor='outlined-adornment-password'>
+          Password
+        </InputLabel>
         <OutlinedInput
           id='outlined-adornment-password'
           type={showPassword ? 'text' : 'password'}

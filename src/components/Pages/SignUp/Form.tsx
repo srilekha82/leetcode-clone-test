@@ -8,13 +8,14 @@ import {
   OutlinedInput,
   TextField,
 } from '@mui/material';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useMutation } from '@tanstack/react-query';
 import signUp from '../../../services/signUp';
 import LanguageDropDown from '../Problem/LanguageDropDown';
 import { toast } from 'sonner';
+import { usethemeUtils } from '../../../context/ThemeWrapper';
 
 export default function SignUpForm() {
   const [email, setEmail] = useState<string>('');
@@ -26,6 +27,7 @@ export default function SignUpForm() {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickConfirmPassword = () => setShowconfirmPassword((show) => !show);
   const [favoriteProgrammingLanguage, setFavoriteProgrammingLanguage] = useState<number>(93);
+  const { colorMode } = usethemeUtils();
 
   const { mutateAsync } = useMutation({
     mutationFn: signUp,
@@ -61,6 +63,8 @@ export default function SignUpForm() {
     setFavoriteProgrammingLanguage(id);
   }
 
+  const colorStyles = useMemo(() => ({ color: colorMode === 'dark' ? 'common.white' : 'common.black' }), [colorMode]);
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <FormControl variant='outlined' size='small'>
@@ -72,6 +76,11 @@ export default function SignUpForm() {
           label='Username'
           variant='outlined'
           size='small'
+          slotProps={{
+            inputLabel: {
+              color: colorStyles.color,
+            },
+          }}
         />
       </FormControl>
       <FormControl variant='outlined' size='small'>
@@ -83,10 +92,17 @@ export default function SignUpForm() {
           label='E-mail'
           variant='outlined'
           size='small'
+          slotProps={{
+            inputLabel: {
+              color: colorStyles.color,
+            },
+          }}
         />
       </FormControl>
       <FormControl variant='outlined' size='small'>
-        <InputLabel htmlFor='outlined-adornment-password'>Password</InputLabel>
+        <InputLabel focused={false} htmlFor='outlined-adornment-password'>
+          Password
+        </InputLabel>
         <OutlinedInput
           id='outlined-adornment-password'
           type={showPassword ? 'text' : 'password'}
@@ -109,7 +125,9 @@ export default function SignUpForm() {
         />
       </FormControl>
       <FormControl variant='outlined' size='small'>
-        <InputLabel htmlFor='outlined-adornment-password'>Confirm Password</InputLabel>
+        <InputLabel focused={false} htmlFor='outlined-adornment-password'>
+          Confirm Password
+        </InputLabel>
         <OutlinedInput
           id='outlined-adornment-password'
           type={showConfirmPassword ? 'text' : 'password'}
