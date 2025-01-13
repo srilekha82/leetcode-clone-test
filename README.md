@@ -13,6 +13,7 @@ A feature-rich LeetCode clone designed to provide a seamless coding and problem-
 - **Real-time Updates**: Pooling mechanisms for fetching results dynamically.
 - **Debouncing for Inputs**: Enhanced performance for search and filters.
 - **Material UI and Tailwind CSS**: Beautiful and responsive UI components.
+- **Indexed DB**: Persistent Storage for storing the user's code changes.
 
 ## Environment Variables
 
