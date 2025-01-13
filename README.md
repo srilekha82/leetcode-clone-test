@@ -1,30 +1,57 @@
-# React + TypeScript + Vite
+# LeetCode Clone Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A feature-rich LeetCode clone designed to provide a seamless coding and problem-solving experience for developers. This project mimics the LeetCode UI and functionality with added enhancements to improve usability and performance.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Dynamic Problem Solving**: Responsive interface for solving coding problems with real-time feedback.
+- **Shimmer Loading**: Smooth loading animations for a polished user experience.
+- **Resizable Code Editor**: Powered by Monaco Editor, allowing you to customize your coding space.
+- **Cookie-based Authentication**: Secure and persistent user sessions.
+- **Judge0 API Integration**: Fast and reliable code execution support for multiple programming languages.
+- **Dark/Light Mode**: Tailored for all-day coding sessions.
+- **Real-time Updates**: Pooling mechanisms for fetching results dynamically.
+- **Debouncing for Inputs**: Enhanced performance for search and filters.
+- **Material UI and Tailwind CSS**: Beautiful and responsive UI components.
+- **Indexed DB**: Persistent Storage for storing the user's code changes.
 
-## Expanding the ESLint configuration
+## Environment Variables
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+To run this project, you will need to add the following environment variables to your `.env` file:
 
-- Configure the top-level `parserOptions` property like this:
+`VITE_API_BASE_URL` - Backend API URL for the application.
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+`VITE_JUDGEAPI_BASE_URL` - URL for the Judge0 API service.
+
+`VITE_JUDGEAPI_API_KEY` - Judge0 API Key.
+
+`VITE_JUDGEAPI_HOST` - Judge0 Host name.
+
+## Tech Stack
+
+**Client**: React, Zustand, TailwindCSS, Material UI, TanStack Query, TanStack Table, Monaco Editor.  
+**Server**: NestJS, MongoDB, TypeScript (referenced in the backend repository).
+
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone https://github.com/kdj309/leetcode-clone
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Install dependencies
+
+```bash
+  npm install
+```
+
+Start the server
+
+```bash
+  npm run dev
+```
+
+
+## Demo
+[Live Application Link](https://leetcode-clone-liard.vercel.app/)
