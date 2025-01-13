@@ -18,7 +18,7 @@ export default function LanguageDropDown({
       id='language'
       value={language}
       label={label}
-      onChange={(event) => handleChange(event.target.value as number)}
+      onChange={(event) => handleChange(parseInt(event.target.value as string))}
       size='small'
     >
       {Object.keys(supportedLanguages)
