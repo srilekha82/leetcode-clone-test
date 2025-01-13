@@ -18,10 +18,13 @@ A feature-rich LeetCode clone designed to provide a seamless coding and problem-
 
 To run this project, you will need to add the following environment variables to your `.env` file:
 
-`VITE_BACKEND_URL` - Backend API URL for the application.  
+`VITE_API_BASE_URL` - Backend API URL for the application.
+
 `VITE_JUDGEAPI_BASE_URL` - URL for the Judge0 API service.
-`VITE_JUDGEAPI_API_KEY` - Judge0 API Key
-`VITE_JUDGEAPI_HOST` - Judge0 Host name
+
+`VITE_JUDGEAPI_API_KEY` - Judge0 API Key.
+
+`VITE_JUDGEAPI_HOST` - Judge0 Host name.
 
 ## Tech Stack
 
