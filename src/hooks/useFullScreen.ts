@@ -6,18 +6,17 @@ export default function useFullScreen() {
   const toggleFullScreen = useCallback(async () => {
     if (!document.fullscreenElement) {
       await document.documentElement.requestFullscreen();
-      setIsFullScreenEnabled(true);
     } else if (document.exitFullscreen) {
-      setIsFullScreenEnabled(false);
       await document.exitFullscreen();
     }
   }, []);
 
   useEffect(() => {
-    const fullscreenChangeHandler = (e: Event) => {
-      console.log(e);
+    const fullscreenChangeHandler = (_e: Event) => {
       if (!document.fullscreenElement) {
         setIsFullScreenEnabled(false);
+      } else {
+        setIsFullScreenEnabled(true);
       }
     };
     document.addEventListener('fullscreenchange', fullscreenChangeHandler);

@@ -12,13 +12,11 @@ const signUp = async (userinfo: createUser) => {
   } catch (error) {
     let message = 'Some internal error occured';
     let code = 500;
-
     if (error instanceof AxiosError) {
       message = error.response?.data.message || 'Server Unavailable';
       code = error.response?.status || 503;
-      throw new Error(`Request Failed with ${code} : ${message}`);
+      throw new Error(`Request Failed with ${code} status : ${message}`);
     }
-
     if (error instanceof Error) {
       message = error.message;
     }
