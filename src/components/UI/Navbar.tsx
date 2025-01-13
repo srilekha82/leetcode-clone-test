@@ -168,23 +168,27 @@ export default function Navbar({
             <li className='tw-flex tw-justify-center tw-items-center'>
               {!isLogedIn ? (
                 <div className='tw-flex tw-justify-between tw-items-center'>
-                  <Link
-                    className={`tw-py-2 tw-px-4 ${colorMode === 'dark' ? 'tw-text-white' : ''}`}
-                    underline='hover'
-                    component={ReactLink}
-                    to='/signin'
-                  >
-                    Sign in
-                  </Link>
-                  <span>or</span>
-                  <Link
-                    className={`tw-py-2 tw-px-4 ${colorMode === 'dark' ? 'tw-text-white' : ''}`}
-                    underline='hover'
-                    component={ReactLink}
-                    to='/signup'
-                  >
-                    Sign up
-                  </Link>
+                  {!location.pathname.includes('/signin') && (
+                    <Link
+                      className={`tw-py-2 tw-px-4 ${colorMode === 'dark' ? 'tw-text-white' : ''}`}
+                      underline='hover'
+                      component={ReactLink}
+                      to='/signin'
+                    >
+                      Sign in
+                    </Link>
+                  )}
+                  {!location.pathname.includes('/signup') && !location.pathname.includes('/signin') && <span>or</span>}
+                  {!location.pathname.includes('/signup') && (
+                    <Link
+                      className={`tw-py-2 tw-px-4 ${colorMode === 'dark' ? 'tw-text-white' : ''}`}
+                      underline='hover'
+                      component={ReactLink}
+                      to='/signup'
+                    >
+                      Sign up
+                    </Link>
+                  )}
                 </div>
               ) : (
                 <Profile />

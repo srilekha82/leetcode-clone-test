@@ -4,7 +4,7 @@ import { createUser, signUpType } from '../utils/types';
 
 const signUp = async (userinfo: createUser) => {
   try {
-    const response = await api.post<signUpType>('users/createUser', userinfo);
+    const response = await api.post<signUpType>('users/createUser', userinfo, { withCredentials: true });
     if (response.data.status === 'Failure') {
       throw new Error(response.data.error);
     }

@@ -34,7 +34,6 @@ import useResizePanel from '../../../hooks/useResizePanel';
 import useShrinkState from '../../../hooks/useShrinkState';
 import { useCodeStorage } from '../../../db';
 import OpenInFullOutlinedIcon from '@mui/icons-material/OpenInFullOutlined';
-// import CloseFullscreenOutlinedIcon from '@mui/icons-material/CloseFullscreenOutlined';
 import RestoreOutlinedIcon from '@mui/icons-material/RestoreOutlined';
 import useFullScreen from '../../../hooks/useFullScreen';
 
@@ -122,7 +121,14 @@ export default function Problem() {
           setProblemInfo(problemResponse.data);
           const storedCode = await getUserCode(problemname?.slice(0, 24) as string);
           if (Object.keys(storedCode).length) {
-            setCode(storedCode);
+            if (!storedCode[language]) {
+              setCode({
+                ...storedCode,
+                [language]: problemResponse.data?.starterCode.find((s) => s.lang_id == language)?.code ?? '',
+              });
+            } else {
+              setCode(storedCode);
+            }
           } else {
             setCode({ [language]: problemResponse.data?.starterCode.find((s) => s.lang_id == language)?.code ?? '' });
           }

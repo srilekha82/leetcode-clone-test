@@ -16,6 +16,8 @@ import signUp from '../../../services/signUp';
 import LanguageDropDown from '../Problem/LanguageDropDown';
 import { toast } from 'sonner';
 import { usethemeUtils } from '../../../context/ThemeWrapper';
+import { useAuthSlice } from '../../../store/authslice/auth';
+import { useNavigate } from 'react-router';
 
 export default function SignUpForm() {
   const [email, setEmail] = useState<string>('');
@@ -27,7 +29,9 @@ export default function SignUpForm() {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickConfirmPassword = () => setShowconfirmPassword((show) => !show);
   const [favoriteProgrammingLanguage, setFavoriteProgrammingLanguage] = useState<number>(93);
+  const navigate = useNavigate();
   const { colorMode } = usethemeUtils();
+  const signin = useAuthSlice((state) => state.signIn);
 
   const { mutateAsync } = useMutation({
     mutationFn: signUp,
@@ -51,7 +55,13 @@ export default function SignUpForm() {
         favoriteProgrammingLanguage,
         roles: ['user'],
       });
-      console.log({ response });
+      if (response?.status === 'Success') {
+        toast.success('User Created Successfully', { position: 'bottom-left', duration: 2000, dismissible: true });
+        signin();
+        navigate('/', { state: response.data.id });
+      } else {
+        toast.error('User Creation Failed', { position: 'bottom-left', duration: 2000, dismissible: true });
+      }
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message, { position: 'bottom-left' });

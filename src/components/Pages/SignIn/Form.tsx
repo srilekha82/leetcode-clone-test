@@ -49,6 +49,26 @@ export default function LoginForm() {
       }
     }
   };
+  const signInAsGuest = async () => {
+    try {
+      const data = await mutateAsync({
+        email: import.meta.env.VITE_GUEST_USER_EMAIL,
+        password: import.meta.env.VITE_GUEST_USER_PASSWORD,
+      });
+      if (data?.status === 'Success') {
+        signin();
+        navigate('/', { state: data.data.id });
+      } else {
+        throw new Error('Guest Sign In Failed');
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message, {
+          position: 'bottom-left',
+        });
+      }
+    }
+  };
   const colorStyles = useMemo(() => ({ color: colorMode === 'dark' ? 'common.white' : 'common.black' }), [colorMode]);
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -93,9 +113,15 @@ export default function LoginForm() {
           label='Password'
         />
       </FormControl>
-      <Button color='warning' variant='contained' onClick={onClickHandler}>
-        Sign In
-      </Button>
+      <div className='tw-flex tw-flex-col tw-items-center tw-gap-0'>
+        <Button color='warning' variant='contained' onClick={onClickHandler}>
+          Sign In
+        </Button>
+        <div>Or</div>
+        <Button color='warning' variant='contained' onClick={signInAsGuest}>
+          Sign In as Guest
+        </Button>
+      </div>
     </Box>
   );
 }
