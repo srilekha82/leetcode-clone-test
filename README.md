@@ -10,7 +10,7 @@ A feature-rich LeetCode clone designed to provide a seamless coding and problem-
 - **Cookie-based Authentication**: Secure and persistent user sessions.
 - **Judge0 API Integration**: Fast and reliable code execution support for multiple programming languages.
 - **Dark/Light Mode**: Tailored for all-day coding sessions.
-- **Real-time Updates**: Pooling mechanisms for fetching results dynamically.
+- **Real-time Updates**: Polling mechanisms for fetching results dynamically.
 - **Debouncing for Inputs**: Enhanced performance for search and filters.
 - **Material UI and Tailwind CSS**: Beautiful and responsive UI components.
 - **Indexed DB**: Persistent Storage for storing the user's code changes.
