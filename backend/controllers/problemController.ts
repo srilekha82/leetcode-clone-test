@@ -3,7 +3,7 @@ import Problem from '../models/Problem';
 
 export const getProblems = async (_req: Request, res: Response) => {
   const problems = await Problem.find();
-  res.json({ status: 'Success', problems });
+  res.json({"data":problems});
 };
 
 export const getProblem = async (req: Request, res: Response) => {

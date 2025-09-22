@@ -15,7 +15,7 @@ export const signup = async (req: Request, res: Response) => {
     await user.save();
     res.json({ status: 'Success', user });
   } catch (error) {
-    res.status(500).json({ status: 'Failure', error: error.message });
+    res.status(500).json({ status: 'Failure', error: error });
   }
 };
 
@@ -29,7 +29,7 @@ export const signin = async (req: Request, res: Response) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '1d' });
     res.json({ status: 'Success', token, user });
   } catch (error) {
-    res.status(500).json({ status: 'Failure', error: error.message });
+    res.status(500).json({ status: 'Failure', error: error });
   }
 };
 

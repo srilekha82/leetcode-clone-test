@@ -13,19 +13,32 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
-
+/*app.use(cors({
+  origin: true,
+  credentials: true
+}));
+app.use(express.json());*/
+app.use((req, res, next) => {
+  console.log('Request received:', req.method, req.url);
+  next();
+});
+app.use(cors({ origin: "https://vigilant-space-trout-xrgp5667ggf959-5173.app.github.dev", credentials: true }));
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI || '', { })
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/auth/session/validation', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/problems', problemRoutes);
+
 app.use('/api/submissions', submissionRoutes);
+
+// Default route
+app.get('/', (req, res) => {
+  res.send('Hello World');
+});
 
 // Error handler
 app.use(errorHandler);
