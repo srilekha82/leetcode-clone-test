@@ -33,6 +33,7 @@ export interface commonresponse {
   data: any;
 }
 export interface getProblemsType extends Omit<commonresponse, 'data'> {
+  problemList: any;
   data: Problem[];
 }
 export interface getProblemType extends Omit<commonresponse, 'data'> {
